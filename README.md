@@ -35,3 +35,7 @@ This project breathes new life into a retired Xiaomi Poco F1 (code-named *Beryll
 
 ## 💡 What I Learned
 Building this required diving deep into Linux file systems, writing custom systemd daemon services, navigating complex CORS and Private Network Access (PNA) browser security policies, and managing internal DNS routing over a mesh VPN. It proved that cloud computing doesn't always have to happen in a data center—sometimes it's sitting right on your desk.
+
+## SCREENSHOT
+![ss](https://github.com/user-attachments/assets/f5486b1b-1eeb-47ac-9d1e-216c0ade1e61)
+
