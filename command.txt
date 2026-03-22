@@ -1,1 +1,2 @@
 To update git and fetch changes - update-dash
+sudo systemctl restart beryllium-api

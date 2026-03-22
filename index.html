@@ -4,914 +4,464 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Beryllium Core</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700;900&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-  :root {
-    --bg:       #070809;
-    --surface:  #0d1014;
-    --border:   #1a2030;
-    --border2:  #243040;
-    --green:    #00ff88;
-    --green2:   #00cc66;
-    --cyan:     #00d4ff;
-    --orange:   #ff6b2b;
-    --red:      #ff3355;
-    --yellow:   #ffd600;
-    --purple:   #a855f7;
-    --dim:      #3a4a5a;
-    --muted:    #5a6a7a;
-    --text:     #c8d8e8;
-    --mono:     'Share Tech Mono', monospace;
-    --sans:     'Barlow', sans-serif;
-    --cond:     'Barlow Condensed', sans-serif;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --card2: #f9f9fb;
+  --border: #e5e5ea;
+  --text: #1c1c1e;
+  --sub: #6b6b70;
+  --dim: #aeaeb2;
+  --blue: #007aff;
+  --green: #34c759;
+  --orange: #ff9500;
+  --red: #ff3b30;
+  --purple: #af52de;
+  --teal: #5ac8fa;
+  --indigo: #5856d6;
+  --pink: #ff2d55;
+  --yellow: #ffcc00;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', -apple-system, sans-serif;
+  --r: 14px;
+  --r-sm: 10px;
+}
+html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* TOPBAR */
+.topbar {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  padding: 0 20px;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+.tb-l { display: flex; align-items: center; gap: 10px; }
+.live { display: flex; align-items: center; gap: 6px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: livepulse 2s ease-in-out infinite; }
+@keyframes livepulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(1.2); } }
+.live-dot.off { background: var(--red); animation: none; }
+.tb-title { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -.02em; }
+.tb-title span { color: var(--blue); }
+.tb-chip { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 500; color: var(--sub); letter-spacing: .02em; }
+.tb-r { display: flex; align-items: center; gap: 20px; }
+.tb-stat { text-align: right; }
+.tb-k { font-size: 10px; color: var(--dim); font-weight: 500; }
+.tb-v { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--text); }
+.idle-tag { display: none; background: rgba(255,149,0,.1); color: var(--orange); border: 1px solid rgba(255,149,0,.25); border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 600; }
+.tb-sep { width: 1px; height: 18px; background: var(--border); }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* LAYOUT */
+.page { max-width: 1440px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 
-  /* Scanline overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.03) 2px,
-      rgba(0,0,0,0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 9999;
-  }
+/* CARD */
+.card {
+  background: var(--card);
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.card-p { padding: 16px; }
+.card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.card-title { font-size: 12px; font-weight: 600; color: var(--sub); letter-spacing: .02em; }
 
-  /* Grid background */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+/* PILL BADGE */
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+.pill-green { background: rgba(52,199,89,.12); color: #1d7a34; }
+.pill-blue { background: rgba(0,122,255,.1); color: #0056cc; }
+.pill-orange { background: rgba(255,149,0,.12); color: #b35a00; }
+.pill-red { background: rgba(255,59,48,.1); color: #c0392b; }
+.pill-purple { background: rgba(175,82,222,.1); color: #7d3aab; }
+.pill-teal { background: rgba(90,200,250,.15); color: #0a7ca8; }
+.pill-indigo { background: rgba(88,86,214,.1); color: #3634a3; }
+.pill-gray { background: rgba(142,142,147,.1); color: #48484a; }
 
-  .wrap {
-    position: relative;
-    z-index: 1;
-    max-width: 1800px;
-    margin: 0 auto;
-    padding: 0 24px 40px;
-  }
+/* GRID */
+.row { display: grid; gap: 12px; }
+.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.cols-12 { grid-template-columns: repeat(12, 1fr); }
+.span-8 { grid-column: span 8; }
+.span-4 { grid-column: span 4; }
+.span-5 { grid-column: span 5; }
+.span-7 { grid-column: span 7; }
 
-  /* ── HEADER ── */
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0 20px;
-    border-bottom: 1px solid var(--border2);
-    margin-bottom: 24px;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
+/* BIG NUM */
+.big { font-family: var(--mono); font-size: 44px; font-weight: 700; color: var(--text); line-height: 1; letter-spacing: -.03em; }
+.big-sub { font-size: 11px; color: var(--dim); margin-top: 3px; font-weight: 400; }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
+/* BAR */
+.bar { display: flex; flex-direction: column; gap: 5px; }
+.bar-top { display: flex; justify-content: space-between; align-items: baseline; }
+.bar-label { font-size: 11px; font-weight: 600; color: var(--sub); }
+.bar-val { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text); }
+.bar-track { height: 5px; background: var(--bg); border-radius: 10px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 10px; transition: width .8s cubic-bezier(.4,0,.2,1); }
 
-  .status-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 0 3px rgba(0,255,136,0.15), 0 0 20px var(--green);
-    animation: pulse 2s infinite;
-    flex-shrink: 0;
-  }
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 3px rgba(0,255,136,0.15), 0 0 20px var(--green); }
-    50%      { box-shadow: 0 0 0 6px rgba(0,255,136,0.08), 0 0 35px var(--green); }
-  }
+/* STAT ROW */
+.srow { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.srow:last-child { border-bottom: none; }
+.sk { font-size: 12px; color: var(--sub); font-weight: 400; }
+.sv { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text); }
 
-  .header-title {
-    font-family: var(--cond);
-    font-weight: 900;
-    font-size: 28px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: #fff;
-    line-height: 1;
-  }
-  .header-title span {
-    color: var(--cyan);
-  }
+/* CHART */
+.chart-wrap { position: relative; height: 90px; }
 
-  .header-sub {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    margin-top: 4px;
-  }
+/* CORE GRID */
+.cores { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.core { background: var(--bg); border-radius: var(--r-sm); padding: 9px 5px; text-align: center; border: 1px solid var(--border); }
+.core-id { font-size: 9px; color: var(--dim); font-weight: 500; margin-bottom: 4px; }
+.core-pct { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--text); transition: color .3s; }
+.core-track { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.core-fill { height: 100%; border-radius: 2px; background: var(--blue); transition: width .5s ease; }
 
-  .header-right {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
+/* THERMAL */
+.therm { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.therm:last-child { border-bottom: none; }
+.therm-name { font-size: 10px; font-weight: 600; color: var(--sub); width: 44px; flex-shrink: 0; text-transform: uppercase; letter-spacing: .03em; }
+.therm-track { flex: 1; height: 4px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.therm-fill { height: 100%; border-radius: 3px; transition: width .6s ease, background .4s; }
+.therm-val { font-family: var(--mono); font-size: 11px; font-weight: 700; width: 36px; text-align: right; flex-shrink: 0; }
 
-  .hstat {
-    text-align: right;
-  }
-  .hstat-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--dim);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-  }
-  .hstat-val {
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--green);
-    line-height: 1.2;
-  }
+/* PROCESS */
+.proc-hdr { display: grid; grid-template-columns: 40px 1fr 50px 48px; gap: 4px; padding: 6px 16px; border-bottom: 1px solid var(--border); background: var(--card2); font-size: 10px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .06em; }
+.ph-r { text-align: right; }
+.prow { display: grid; grid-template-columns: 40px 1fr 50px 48px; gap: 4px; padding: 8px 16px; border-bottom: 1px solid rgba(229,229,234,.5); align-items: center; transition: background .15s; }
+.prow:hover { background: var(--card2); }
+.prow:last-child { border-bottom: none; }
+.ppid { font-family: var(--mono); font-size: 10px; color: var(--dim); text-align: right; }
+.pname { font-family: var(--mono); font-size: 11px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pcpu { font-family: var(--mono); font-size: 11px; font-weight: 700; text-align: right; }
+.pmem { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--indigo); text-align: right; }
 
-  .divider { width: 1px; height: 40px; background: var(--border2); }
+/* IFACE */
+.iface { background: var(--card2); border-radius: var(--r-sm); padding: 10px 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.iface-name { font-size: 12px; font-weight: 700; color: var(--blue); }
+.iface-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+.ik { font-size: 10px; color: var(--dim); font-weight: 400; }
+.iv { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text); }
 
-  /* ── GRID ── */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 16px;
-  }
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 0 16px; }
 
-  /* ── CARD ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 20px 24px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-  }
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--border2), transparent);
-  }
-  .card:hover { border-color: var(--border2); }
+/* OFFLINE */
+.offline { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: var(--red); color: #fff; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-align: center; padding: 5px; text-transform: uppercase; font-weight: 600; }
 
-  .card-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--dim);
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .card-label .tag {
-    background: rgba(0,212,255,0.08);
-    border: 1px solid rgba(0,212,255,0.15);
-    color: var(--cyan);
-    font-size: 8px;
-    padding: 2px 6px;
-    border-radius: 2px;
-    letter-spacing: 0.1em;
-  }
-
-  .big-num {
-    font-family: var(--cond);
-    font-weight: 900;
-    font-size: 64px;
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-
-  .sub-num {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* ── BARS ── */
-  .bar-track {
-    width: 100%;
-    height: 4px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 8px;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width 0.7s cubic-bezier(0.4,0,0.2,1);
-  }
-
-  /* ── SPECIFIC SPANS ── */
-  .span-8  { grid-column: span 8; }
-  .span-7  { grid-column: span 7; }
-  .span-6  { grid-column: span 6; }
-  .span-5  { grid-column: span 5; }
-  .span-4  { grid-column: span 4; }
-  .span-3  { grid-column: span 3; }
-  .span-2  { grid-column: span 2; }
-  .row-2   { grid-row: span 2; }
-
-  /* ── CPU CHART CARD ── */
-  .cpu-card {
-    grid-column: span 8;
-    grid-row: span 2;
-    display: flex;
-    flex-direction: column;
-  }
-  .cpu-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 16px;
-  }
-  .cpu-pct {
-    font-family: var(--cond);
-    font-weight: 900;
-    font-size: 80px;
-    line-height: 1;
-    color: #fff;
-    letter-spacing: -0.03em;
-  }
-  .chart-wrap {
-    flex: 1;
-    min-height: 160px;
-    position: relative;
-  }
-
-  /* ── CORE GRID ── */
-  .core-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .core-cell {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 10px 8px;
-    text-align: center;
-  }
-  .core-id {
-    font-family: var(--mono);
-    font-size: 8px;
-    color: var(--dim);
-    letter-spacing: 0.1em;
-    margin-bottom: 4px;
-  }
-  .core-pct {
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: bold;
-    color: #fff;
-    transition: color 0.3s;
-  }
-  .core-bar {
-    height: 2px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 1px;
-    overflow: hidden;
-    margin-top: 6px;
-  }
-  .core-bar-fill {
-    height: 100%;
-    background: var(--cyan);
-    border-radius: 1px;
-    transition: width 0.5s ease;
-  }
-
-  /* ── THERMAL MAP ── */
-  .thermal-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  .thermal-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 10px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-  }
-  .thermal-name {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .thermal-val {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: bold;
-    color: var(--orange);
-  }
-
-  /* ── BATTERY ── */
-  .batt-main {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  .batt-icon {
-    position: relative;
-    width: 48px;
-    height: 28px;
-    border: 2px solid var(--border2);
-    border-radius: 3px;
-    flex-shrink: 0;
-  }
-  .batt-icon::after {
-    content: '';
-    position: absolute;
-    right: -6px; top: 50%;
-    transform: translateY(-50%);
-    width: 4px; height: 10px;
-    background: var(--border2);
-    border-radius: 0 2px 2px 0;
-  }
-  .batt-fill {
-    position: absolute;
-    inset: 2px;
-    background: var(--green);
-    border-radius: 1px;
-    transform-origin: left;
-    transition: transform 0.7s ease;
-  }
-
-  .batt-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 12px;
-  }
-  .batt-stat {
-    padding: 8px 10px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-  }
-  .batt-stat-label {
-    font-family: var(--mono);
-    font-size: 8px;
-    color: var(--dim);
-    letter-spacing: 0.1em;
-    margin-bottom: 3px;
-  }
-  .batt-stat-val {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: bold;
-    color: var(--text);
-  }
-
-  /* ── NET / DISK ── */
-  .io-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .io-row:last-child { border-bottom: none; }
-  .io-label {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .io-dot { width: 6px; height: 6px; border-radius: 50%; }
-  .io-val {
-    font-family: var(--mono);
-    font-size: 20px;
-    font-weight: bold;
-  }
-  .io-unit {
-    font-size: 10px;
-    color: var(--dim);
-    margin-left: 4px;
-  }
-
-  /* ── MEM BAR ── */
-  .mem-nums {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-  .mem-used {
-    font-family: var(--cond);
-    font-weight: 900;
-    font-size: 42px;
-    line-height: 1;
-    color: var(--purple);
-  }
-  .mem-total {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  /* ── STATUS BADGE ── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    padding: 3px 8px;
-    border-radius: 2px;
-    text-transform: uppercase;
-  }
-  .badge-green {
-    background: rgba(0,255,136,0.08);
-    border: 1px solid rgba(0,255,136,0.2);
-    color: var(--green);
-  }
-  .badge-orange {
-    background: rgba(255,107,43,0.08);
-    border: 1px solid rgba(255,107,43,0.2);
-    color: var(--orange);
-  }
-  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-
-  /* ── FUEL GAUGE ── */
-  .gauge-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-  .gauge-item {
-    padding: 10px 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-  }
-  .gauge-label {
-    font-family: var(--mono);
-    font-size: 8px;
-    color: var(--dim);
-    letter-spacing: 0.1em;
-    margin-bottom: 4px;
-  }
-  .gauge-val {
-    font-family: var(--mono);
-    font-size: 15px;
-    font-weight: bold;
-    color: var(--cyan);
-  }
-
-  /* ── TICKER ── */
-  .ticker {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--dim);
-    letter-spacing: 0.05em;
-    padding: 8px 0 0;
-    border-top: 1px solid var(--border);
-    margin-top: 12px;
-  }
-  .ticker span { color: var(--green); }
-
-  /* ── OFFLINE OVERLAY ── */
-  .offline-banner {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    background: rgba(255,51,85,0.9);
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    text-align: center;
-    padding: 6px;
-    z-index: 9998;
-  }
-
-  @media (max-width: 1200px) {
-    .cpu-card  { grid-column: span 12; grid-row: span 1; }
-    .span-8    { grid-column: span 12; }
-    .span-7    { grid-column: span 12; }
-    .span-6    { grid-column: span 6; }
-    .span-5    { grid-column: span 6; }
-    .span-4    { grid-column: span 6; }
-    .span-3    { grid-column: span 6; }
-  }
-  @media (max-width: 700px) {
-    .span-6, .span-5, .span-4, .span-3, .span-2 { grid-column: span 12; }
-    .thermal-grid { grid-template-columns: 1fr; }
-    .core-grid { grid-template-columns: repeat(4, 1fr); }
-    .batt-stats { grid-template-columns: repeat(2, 1fr); }
-  }
+@media (max-width: 1100px) {
+  .span-8, .span-7 { grid-column: span 12; }
+  .span-4, .span-5 { grid-column: span 6; }
+  .cols-3, .cols-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .span-4, .span-5, .span-6 { grid-column: span 12; }
+  .cols-3, .cols-4, .cols-2 { grid-template-columns: 1fr; }
+  .cores { grid-template-columns: repeat(4, 1fr); }
+}
 </style>
 </head>
 <body>
 
-<div class="offline-banner" id="offline">⚠ Server DOWN — BERYLLIUM CORE UNREACHABLE</div>
+<div class="offline" id="offline">Connection lost — retrying</div>
 
-<div class="wrap">
-  <header>
-    <div class="header-left">
-      <div class="status-dot" id="status-dot"></div>
-      <div>
-        <div class="header-title">Beryllium <span>Core</span></div>
-        <div class="header-sub">100.xxx.xxx.108 &nbsp;·&nbsp; POCO F1 &nbsp;·&nbsp; AARCH64 &nbsp;·&nbsp; SNAPDRAGON 845</div>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="hstat">
-        <div class="hstat-label">Uptime</div>
-        <div class="hstat-val" id="sys-uptime">—</div>
-      </div>
-      <div class="divider"></div>
-      <div class="hstat">
-        <div class="hstat-label">Load 1m</div>
-        <div class="hstat-val" id="load1">—</div>
-      </div>
-      <div class="divider"></div>
-      <div class="hstat">
-        <div class="hstat-label">Last Poll</div>
-        <div class="hstat-val" id="last-poll" style="color:var(--muted);font-size:13px">—</div>
-      </div>
-    </div>
-  </header>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-l">
+    <div class="live"><div class="live-dot" id="dot"></div></div>
+    <div class="tb-title">Beryllium <span>Core</span></div>
+    <div class="tb-chip">Poco F1 · SD845 · postmarketOS</div>
+  </div>
+  <div class="tb-r">
+    <div class="idle-tag" id="idle">Paused</div>
+    <div class="tb-stat"><div class="tb-k">Uptime</div><div class="tb-v" id="h-up">—</div></div>
+    <div class="tb-sep"></div>
+    <div class="tb-stat"><div class="tb-k">Load</div><div class="tb-v" id="h-load">—</div></div>
+    <div class="tb-sep"></div>
+    <div class="tb-stat"><div class="tb-k">Processes</div><div class="tb-v" id="h-procs">—</div></div>
+    <div class="tb-sep"></div>
+    <div class="tb-stat"><div class="tb-k">Updated</div><div class="tb-v" id="h-poll" style="color:var(--dim);font-size:11px">—</div></div>
+  </div>
+</div>
 
-  <div class="grid">
+<div class="page">
 
-    <!-- CPU Chart -->
-    <div class="card cpu-card">
-      <div class="cpu-header">
-        <div>
-          <div class="card-label">Global Compute <span class="tag">SD845 · 8C</span></div>
-          <div class="cpu-pct" id="cpu-total">0%</div>
-          <div class="sub-num" id="load-avg">load —</div>
+  <!-- ROW 1: CPU + Battery -->
+  <div class="row cols-12">
+
+    <!-- CPU -->
+    <div class="card span-8">
+      <div class="card-p" style="padding-bottom:10px">
+        <div class="card-head">
+          <span class="card-title">CPU Usage</span>
+          <span class="pill pill-blue" id="cpu-pill">0%</span>
         </div>
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px">
+          <div>
+            <div class="big" id="cpu-big">0%</div>
+            <div class="big-sub" id="cpu-sub">load —</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;text-align:right;padding-bottom:4px">
+            <span style="font-size:11px;color:var(--dim)">Net RX</span><span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--blue)" id="h-rx">—</span>
+            <span style="font-size:11px;color:var(--dim)">Net TX</span><span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--green)" id="h-tx">—</span>
+            <span style="font-size:11px;color:var(--dim)">Disk R</span><span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--orange)" id="h-dr">—</span>
+            <span style="font-size:11px;color:var(--dim)">Disk W</span><span style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red)" id="h-dw">—</span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
       </div>
-      <div class="chart-wrap">
-        <canvas id="cpuChart"></canvas>
+      <div class="divider"></div>
+      <div class="card-p" style="padding-top:12px">
+        <div class="cores" id="cores"></div>
       </div>
-    </div>
-
-    <!-- SoC Thermal -->
-    <div class="card span-4">
-      <div class="card-label">SoC Thermals <span class="tag">13 ZONES</span></div>
-      <div class="thermal-grid" id="thermal-grid"></div>
-    </div>
-
-    <!-- Cores -->
-    <div class="card span-4">
-      <div class="card-label">Core Load <span class="tag">PERCPU</span></div>
-      <div class="core-grid" id="core-grid"></div>
     </div>
 
     <!-- Battery -->
     <div class="card span-4">
-      <div class="card-label">Battery UPS <span class="tag" id="batt-status-tag">—</span></div>
-      <div class="batt-main">
-        <div class="batt-icon">
-          <div class="batt-fill" id="batt-icon-fill" style="transform: scaleX(0)"></div>
+      <div class="card-p">
+        <div class="card-head">
+          <span class="card-title">Battery · Power</span>
+          <span class="pill pill-green" id="batt-badge">Discharging</span>
         </div>
-        <div>
-          <div class="big-num" id="batt-level" style="color:var(--green);font-size:52px">—%</div>
-          <div class="sub-num" id="batt-volt">—V</div>
+        <div class="big" id="batt-big" style="color:var(--green)">—%</div>
+        <div class="big-sub" id="batt-sub">—</div>
+        <div class="bar" style="margin:12px 0">
+          <div class="bar-track" style="height:7px"><div class="bar-fill" id="batt-bar" style="background:var(--green)"></div></div>
         </div>
-      </div>
-      <div class="batt-stats">
-        <div class="batt-stat">
-          <div class="batt-stat-label">Current</div>
-          <div class="batt-stat-val" id="batt-current">—</div>
-        </div>
-        <div class="batt-stat">
-          <div class="batt-stat-label">Batt Temp</div>
-          <div class="batt-stat-val" id="batt-temp">—</div>
-        </div>
-        <div class="batt-stat">
-          <div class="batt-stat-label">Capacity</div>
-          <div class="batt-stat-val" id="batt-cap">—</div>
-        </div>
+        <div class="srow"><span class="sk">Voltage</span><span class="sv" style="color:var(--orange)" id="batt-v">—</span></div>
+        <div class="srow"><span class="sk">Current</span><span class="sv" style="color:var(--blue)" id="batt-i">—</span></div>
+        <div class="srow"><span class="sk">Temperature</span><span class="sv" style="color:var(--red)" id="batt-t">—</span></div>
+        <div class="srow"><span class="sk">Capacity</span><span class="sv" id="batt-cap">—</span></div>
+        <div class="srow"><span class="sk">Technology</span><span class="sv" id="batt-tech">—</span></div>
+        <div class="srow"><span class="sk">FG Current</span><span class="sv" style="color:var(--blue)" id="fg-i">—</span></div>
+        <div class="srow"><span class="sk">FG Voltage</span><span class="sv" style="color:var(--orange)" id="fg-v">—</span></div>
+        <div class="srow"><span class="sk">Die Temp</span><span class="sv" style="color:var(--red)" id="die-t">—</span></div>
       </div>
     </div>
 
-    <!-- RAM -->
-    <div class="card span-4">
-      <div class="card-label">Physical RAM <span class="tag">LPDDR4X</span></div>
-      <div class="mem-nums">
-        <div class="mem-used" id="ram-used">—</div>
-        <div class="mem-total" id="ram-total">/ — GB</div>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" id="ram-bar" style="background:var(--purple);width:0%"></div>
-      </div>
-      <div class="ticker" id="ram-pct">— % utilized</div>
-    </div>
+  </div>
 
-    <!-- Storage -->
-    <div class="card span-4">
-      <div class="card-label">UFS 2.1 Storage <span class="tag">ROOT</span></div>
-      <div class="mem-nums">
-        <div class="mem-used" id="disk-used" style="color:var(--cyan)">—</div>
-        <div class="mem-total" id="disk-total">/ — GB</div>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" id="disk-bar" style="background:var(--cyan);width:0%"></div>
-      </div>
-      <div class="ticker" id="disk-pct">— % utilized</div>
-    </div>
+  <!-- ROW 2: Memory + Thermals + Network -->
+  <div class="row cols-3">
 
-    <!-- ZRAM -->
-    <div class="card span-4">
-      <div class="card-label">ZRAM Swap</div>
-      <div class="mem-nums">
-        <div class="mem-used" id="zram-used" style="color:var(--yellow)">—</div>
-        <div class="mem-total" id="zram-total">/ — MB</div>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill" id="zram-bar" style="background:var(--yellow);width:0%"></div>
-      </div>
-      <div class="ticker" id="zram-pct">— % utilized</div>
-    </div>
-
-    <!-- Network IO -->
-    <div class="card span-3">
-      <div class="card-label">Network I/O</div>
-      <div class="io-row">
-        <div class="io-label"><div class="io-dot" style="background:var(--cyan)"></div> RX</div>
-        <div class="io-val" style="color:var(--cyan)" id="net-rx">—<span class="io-unit">KB/s</span></div>
-      </div>
-      <div class="io-row">
-        <div class="io-label"><div class="io-dot" style="background:var(--green)"></div> TX</div>
-        <div class="io-val" style="color:var(--green)" id="net-tx">—<span class="io-unit">KB/s</span></div>
-      </div>
-    </div>
-
-    <!-- Disk IO -->
-    <div class="card span-3">
-      <div class="card-label">Disk I/O</div>
-      <div class="io-row">
-        <div class="io-label"><div class="io-dot" style="background:var(--orange)"></div> READ</div>
-        <div class="io-val" style="color:var(--orange)" id="disk-read">—<span class="io-unit">MB/s</span></div>
-      </div>
-      <div class="io-row">
-        <div class="io-label"><div class="io-dot" style="background:var(--red)"></div> WRITE</div>
-        <div class="io-val" style="color:var(--red)" id="disk-write">—<span class="io-unit">MB/s</span></div>
-      </div>
-    </div>
-
-    <!-- Fuel Gauge IIO -->
-    <div class="card span-6">
-      <div class="card-label">Fuel Gauge IIO <span class="tag">DEVICE1</span></div>
-      <div class="gauge-grid">
-        <div class="gauge-item">
-          <div class="gauge-label">Current 0</div>
-          <div class="gauge-val" id="fg-i0">—</div>
+    <!-- Memory -->
+    <div class="card">
+      <div class="card-p">
+        <div class="card-head"><span class="card-title">Memory</span><span class="pill pill-indigo">LPDDR4X</span></div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="bar">
+            <div class="bar-top"><span class="bar-label">RAM</span><span class="bar-val" id="ram-val">—</span></div>
+            <div class="bar-track"><div class="bar-fill" id="ram-bar" style="background:var(--indigo)"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-top"><span class="bar-label">ZRAM Swap</span><span class="bar-val" id="zram-val">—</span></div>
+            <div class="bar-track"><div class="bar-fill" id="zram-bar" style="background:var(--orange)"></div></div>
+          </div>
+          <div class="bar">
+            <div class="bar-top"><span class="bar-label">Storage</span><span class="bar-val" id="disk-val">—</span></div>
+            <div class="bar-track"><div class="bar-fill" id="disk-bar" style="background:var(--teal)"></div></div>
+          </div>
         </div>
-        <div class="gauge-item">
-          <div class="gauge-label">Current 1</div>
-          <div class="gauge-val" id="fg-i1">—</div>
-        </div>
-        <div class="gauge-item">
-          <div class="gauge-label">Voltage</div>
-          <div class="gauge-val" id="fg-v0">—</div>
-        </div>
-        <div class="gauge-item">
-          <div class="gauge-label">Die Temp</div>
-          <div class="gauge-val" id="fg-temp">—</div>
+        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+        <div class="card-head" style="margin-bottom:8px"><span class="card-title">Network I/O</span><span class="pill pill-blue">Live</span></div>
+        <div id="net-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+
+    <!-- Thermals -->
+    <div class="card">
+      <div class="card-p">
+        <div class="card-head"><span class="card-title">SoC Thermals</span><span class="pill pill-orange">13 zones</span></div>
+        <div id="therm-list"></div>
+      </div>
+    </div>
+
+    <!-- Processes -->
+    <div class="card" style="overflow:hidden">
+      <div class="card-p" style="padding-bottom:10px">
+        <div class="card-head" style="margin-bottom:0">
+          <span class="card-title">Top Processes</span>
+          <span class="pill pill-gray" id="proc-badge">—</span>
         </div>
       </div>
+      <div class="proc-hdr">
+        <div class="ph-r">PID</div><div>Name</div><div class="ph-r">CPU</div><div class="ph-r">Mem</div>
+      </div>
+      <div id="proc-list"></div>
     </div>
 
-  </div><!-- /grid -->
+  </div>
+
 </div>
 
 <script>
-  // ── Init cores ──
-  const coreGrid = document.getElementById('core-grid');
-  for (let i = 0; i < 8; i++) {
-    coreGrid.innerHTML += `
-      <div class="core-cell">
-        <div class="core-id">C${i}</div>
-        <div class="core-pct" id="c${i}">0%</div>
-        <div class="core-bar"><div class="core-bar-fill" id="cb${i}" style="width:0%"></div></div>
-      </div>`;
-  }
+// Init cores
+const coresEl = document.getElementById('cores');
+for (let i = 0; i < 8; i++) {
+  coresEl.innerHTML += `<div class="core"><div class="core-id">C${i}</div><div class="core-pct" id="c${i}">0%</div><div class="core-track"><div class="core-fill" id="cb${i}"></div></div></div>`;
+}
 
-  // ── Init thermals ──
-  const THERMAL_LABELS = {
-    cpu0:'CPU-0', cpu7:'CPU-7', gpu_top:'GPU', gpu_bot:'GPU-B',
-    aoss0:'AOSS-0', aoss1:'AOSS-1', modem:'MODEM', wlan:'WLAN',
-    mem:'MEM', camera:'CAM', pm8998:'PMIC', cluster0:'CLS-0', cluster1:'CLS-1'
-  };
-  const thermalGrid = document.getElementById('thermal-grid');
-  Object.keys(THERMAL_LABELS).forEach(k => {
-    thermalGrid.innerHTML += `
-      <div class="thermal-row">
-        <div class="thermal-name">${THERMAL_LABELS[k]}</div>
-        <div class="thermal-val" id="t-${k}">—°</div>
-      </div>`;
-  });
+// Init thermals
+const TZ = {cpu0:'CPU0',cpu7:'CPU7',gpu_top:'GPU+',gpu_bot:'GPU−',cluster0:'CLS0',cluster1:'CLS1',aoss0:'AOSS0',aoss1:'AOSS1',modem:'MODEM',wlan:'WLAN',mem:'MEM',camera:'CAM',pm8998:'PMIC'};
+const tl = document.getElementById('therm-list');
+Object.keys(TZ).forEach(k => {
+  tl.innerHTML += `<div class="therm"><div class="therm-name">${TZ[k]}</div><div class="therm-track"><div class="therm-fill" id="tf-${k}"></div></div><div class="therm-val" id="tv-${k}">—</div></div>`;
+});
 
-  // ── Chart ──
-  const ctx = document.getElementById('cpuChart').getContext('2d');
-  const cpuChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: Array(60).fill(''),
-      datasets: [{
-        data: Array(60).fill(0),
-        borderColor: 'rgba(0,212,255,0.8)',
-        backgroundColor: 'rgba(0,212,255,0.05)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.4,
-        pointRadius: 0
-      }]
+// Chart
+const chart = new Chart(document.getElementById('chart').getContext('2d'), {
+  type: 'line',
+  data: { labels: Array(60).fill(''), datasets: [{
+    data: Array(60).fill(0),
+    borderColor: '#007aff',
+    backgroundColor: 'rgba(0,122,255,0.07)',
+    borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0
+  }]},
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: {
+      y: { min:0, max:100, border:{display:false}, grid:{color:'rgba(0,0,0,.04)'}, ticks:{color:'#aeaeb2',font:{family:'JetBrains Mono',size:9},stepSize:50,callback:v=>v+'%'} },
+      x: { display: false }
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          min: 0, max: 100,
-          border: { display: false },
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: '#3a4a5a', font: { family: 'Share Tech Mono', size: 9 }, stepSize: 25 }
-        },
-        x: { display: false }
-      },
-      plugins: { legend: { display: false } },
-      animation: { duration: 0 }
-    }
-  });
-
-  // ── Helpers ──
-  function formatUptime(s) {
-    const d = Math.floor(s / 86400);
-    const h = Math.floor((s % 86400) / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    return `${d}d ${h}h ${m}m`;
+    plugins: { legend: { display: false } }, animation: { duration: 0 }
   }
-  function fmt(val, unit, dec=1) {
-    if (val === null || val === undefined) return '—';
-    return parseFloat(val).toFixed(dec) + unit;
+});
+
+// Helpers
+const $ = id => document.getElementById(id);
+const set = (id, v) => { const e=$(id); if(e) e.innerText=v; };
+const uptime = s => { const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return `${d}d ${h}h ${m}m`; };
+const tc = c => c==null?'var(--dim)':c>85?'var(--red)':c>70?'var(--orange)':c>55?'var(--yellow)':'var(--green)';
+const cc = p => p>85?'var(--red)':p>60?'var(--orange)':p>30?'var(--blue)':'var(--text)';
+const fmtS = b => b>1e6?(b/1e6).toFixed(2)+' MB/s':b>1e3?(b/1e3).toFixed(1)+' KB/s':b.toFixed(0)+' B/s';
+const fmtB = b => b>1e9?(b/1e9).toFixed(2)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':(b/1e3).toFixed(0)+' KB';
+
+let prev = { rx:{}, tx:{}, diskR:0, diskW:0, ts:Date.now() };
+let online = true, poller = null;
+
+async function poll() {
+  try {
+    const d = await (await fetch('https://poco-f1-pmos.tailbbba48.ts.net/stats')).json();
+
+    if (!online) { $('offline').style.display='none'; online=true; }
+    $('dot').className = 'live-dot';
+    set('h-poll', new Date().toLocaleTimeString());
+    set('h-up', uptime(d.system.uptime_seconds));
+    set('h-load', d.system.load_avg.join(' · '));
+    set('h-procs', d.system.proc_count);
+    set('proc-badge', d.system.proc_count + ' running');
+
+    // CPU
+    const pct = d.compute.total_percent;
+    set('cpu-big', pct + '%');
+    set('cpu-pill', pct + '%');
+    set('cpu-sub', 'load  ' + d.system.load_avg.join('   '));
+    chart.data.datasets[0].data.shift();
+    chart.data.datasets[0].data.push(pct);
+    chart.update();
+    d.compute.cores.forEach((v, i) => {
+      const p = Math.round(v);
+      set('c'+i, p+'%');
+      $('c'+i).style.color = cc(p);
+      $('cb'+i).style.width = p+'%';
+      $('cb'+i).style.background = cc(p) === 'var(--red)' ? '#ff3b30' : cc(p) === 'var(--orange)' ? '#ff9500' : '#007aff';
+    });
+
+    // Battery
+    const bl = parseInt(d.power.level_percent) || 0;
+    const bs = d.power.status || '—';
+    const bClr = bl<20?'var(--red)':bl<40?'var(--orange)':'var(--green)';
+    const bHex = bl<20?'#ff3b30':bl<40?'#ff9500':'#34c759';
+    set('batt-big', bl+'%');
+    $('batt-big').style.color = bClr;
+    set('batt-sub', bs + ' · ' + (d.power.max_voltage_v ? d.power.max_voltage_v+'V max' : ''));
+    $('batt-bar').style.width = bl+'%';
+    $('batt-bar').style.background = bHex;
+    const bb = $('batt-badge');
+    bb.innerText = bs;
+    bb.className = 'pill ' + (bs==='Charging'?'pill-green':bs==='Full'?'pill-blue':'pill-orange');
+    set('batt-v', d.power.voltage_v!=null ? d.power.voltage_v+' V' : '—');
+    const ir = d.power.current_ma;
+    set('batt-i', ir!=null ? (ir>0?'+':'')+ir+' mA' : '—');
+    set('batt-t', d.power.temp_celsius!=null ? d.power.temp_celsius+' °C' : '—');
+    set('batt-cap', d.power.design_capacity_mah!=null ? d.power.design_capacity_mah+' mAh' : '—');
+    set('batt-tech', d.power.technology || '—');
+    set('fg-i', d.iio.fuel_gauge.current0_ma!=null ? d.iio.fuel_gauge.current0_ma+' mA' : '—');
+    set('fg-v', d.iio.fuel_gauge.voltage0_mv!=null ? d.iio.fuel_gauge.voltage0_mv+' mV' : '—');
+    set('die-t', d.iio.die_temp_celsius!=null ? d.iio.die_temp_celsius+' °C' : '—');
+
+    // Memory
+    set('ram-val', `${d.memory.ram_used_gb} / ${d.memory.ram_total_gb} GB`);
+    $('ram-bar').style.width = d.memory.ram_percent+'%';
+    set('zram-val', `${d.memory.zram_used_mb} / ${d.memory.zram_total_mb} MB`);
+    $('zram-bar').style.width = d.memory.zram_percent+'%';
+    set('disk-val', `${d.storage.root_used_gb} / ${d.storage.root_total_gb} GB`);
+    $('disk-bar').style.width = d.storage.root_percent+'%';
+
+    // Thermals
+    Object.keys(TZ).forEach(k => {
+      const v = d.thermals[k];
+      set('tv-'+k, v!=null ? v+'°' : '—');
+      $('tv-'+k).style.color = tc(v);
+      $('tf-'+k).style.width = (v ? Math.min(100,v) : 0)+'%';
+      $('tf-'+k).style.background = v>85?'#ff3b30':v>70?'#ff9500':v>55?'#ffcc00':'#34c759';
+    });
+
+    // IO deltas
+    const now = Date.now(), dt = (now-prev.ts)/1000;
+    const ifaces = d.network.interfaces || {};
+    let tRx=0, tTx=0;
+    const nl = $('net-list');
+    nl.innerHTML = '';
+    Object.entries(ifaces).forEach(([name, st]) => {
+      const rxS = dt>0&&prev.rx[name] ? Math.max(0,(st.bytes_recv-prev.rx[name])/dt) : 0;
+      const txS = dt>0&&prev.tx[name] ? Math.max(0,(st.bytes_sent-prev.tx[name])/dt) : 0;
+      tRx+=rxS; tTx+=txS;
+      nl.innerHTML += `<div class="iface">
+        <div class="iface-name">${name}</div>
+        <div class="iface-grid">
+          <div class="ik">↓ RX</div><div class="iv" style="color:var(--blue)">${fmtS(rxS)}</div>
+          <div class="ik">↑ TX</div><div class="iv" style="color:var(--green)">${fmtS(txS)}</div>
+          <div class="ik">Total RX</div><div class="iv">${fmtB(st.bytes_recv)}</div>
+          <div class="ik">Total TX</div><div class="iv">${fmtB(st.bytes_sent)}</div>
+        </div>
+      </div>`;
+    });
+    set('h-rx', fmtS(tRx)); set('h-tx', fmtS(tTx));
+    const dR = dt>0&&prev.diskR>0 ? Math.max(0,(d.storage.bytes_read-prev.diskR)/dt) : 0;
+    const dW = dt>0&&prev.diskW>0 ? Math.max(0,(d.storage.bytes_written-prev.diskW)/dt) : 0;
+    set('h-dr', fmtS(dR)); set('h-dw', fmtS(dW));
+    const nRx={}, nTx={};
+    Object.entries(ifaces).forEach(([n,st]) => { nRx[n]=st.bytes_recv; nTx[n]=st.bytes_sent; });
+    prev = { rx:nRx, tx:nTx, diskR:d.storage.bytes_read, diskW:d.storage.bytes_written, ts:now };
+
+    // Processes
+    const pl = $('proc-list');
+    pl.innerHTML = '';
+    (d.system.top_procs||[]).forEach(p => {
+      const cpuC = p.cpu>50?'#ff3b30':p.cpu>20?'#ff9500':p.cpu>5?'#007aff':'#34c759';
+      pl.innerHTML += `<div class="prow"><div class="ppid">${p.pid}</div><div class="pname">${p.name}</div><div class="pcpu" style="color:${cpuC}">${p.cpu}%</div><div class="pmem">${p.mem}%</div></div>`;
+    });
+
+  } catch(e) {
+    if (online) { $('offline').style.display='block'; $('dot').className='live-dot off'; online=false; }
   }
-  function thermalColor(c) {
-    if (c === null) return '#3a4a5a';
-    if (c > 85) return '#ff3355';
-    if (c > 70) return '#ff6b2b';
-    if (c > 55) return '#ffd600';
-    return '#00ff88';
-  }
-  function coreColor(p) {
-    if (p > 85) return '#ff3355';
-    if (p > 60) return '#ff6b2b';
-    return '#e8e8e8';
-  }
+}
 
-  let prev = { netRx:0, netTx:0, diskR:0, diskW:0, ts: Date.now() };
-  let online = true;
-
-  async function poll() {
-    try {
-      const r = await fetch('https://poco-f1-pmos.tailbbba48.ts.net/stats');
-      if (!r.ok) throw new Error('non-200');
-      const d = await r.json();
-
-      // Online
-      if (!online) {
-        document.getElementById('offline').style.display = 'none';
-        document.getElementById('status-dot').style.background = 'var(--green)';
-        online = true;
-      }
-      document.getElementById('last-poll').innerText = new Date().toLocaleTimeString();
-
-      // System
-      document.getElementById('sys-uptime').innerText = formatUptime(d.system.uptime_seconds);
-      document.getElementById('load-avg').innerText = `load ${d.system.load_avg.join('  ')}`;
-      document.getElementById('load1').innerText = d.system.load_avg[0];
-
-      // Compute
-      const pct = d.compute.total_percent;
-      document.getElementById('cpu-total').innerText = pct + '%';
-      cpuChart.data.datasets[0].data.shift();
-      cpuChart.data.datasets[0].data.push(pct);
-      cpuChart.update();
-
-      d.compute.cores.forEach((v, i) => {
-        const p = Math.round(v);
-        document.getElementById(`c${i}`).innerText = p + '%';
-        document.getElementById(`c${i}`).style.color = coreColor(p);
-        document.getElementById(`cb${i}`).style.width = p + '%';
-      });
-
-      // Battery
-      const bl = d.power.level_percent;
-      const bs = d.power.status || '—';
-      document.getElementById('batt-level').innerText = bl + '%';
-      document.getElementById('batt-volt').innerText = d.power.voltage_v ? d.power.voltage_v + ' V' : '—';
-      document.getElementById('batt-icon-fill').style.transform = `scaleX(${parseInt(bl)/100})`;
-      document.getElementById('batt-current').innerText = d.power.current_ma !== null ? d.power.current_ma + ' mA' : '—';
-      document.getElementById('batt-temp').innerText = d.power.temp_celsius !== null ? d.power.temp_celsius + ' °C' : '—';
-      document.getElementById('batt-cap').innerText = d.power.design_capacity_mah ? d.power.design_capacity_mah + ' mAh' : '—';
-      const tag = document.getElementById('batt-status-tag');
-      tag.innerText = bs.toUpperCase();
-      tag.style.color = bs === 'Charging' ? 'var(--green)' : 'var(--cyan)';
-
-      // Thermals
-      Object.keys(THERMAL_LABELS).forEach(k => {
-        const el = document.getElementById(`t-${k}`);
-        const v = d.thermals[k];
-        el.innerText = v !== null && v !== undefined ? v + '°' : '—';
-        el.style.color = thermalColor(v);
-      });
-
-      // RAM
-      document.getElementById('ram-used').innerText = d.memory.ram_used_gb;
-      document.getElementById('ram-total').innerText = `/ ${d.memory.ram_total_gb} GB`;
-      document.getElementById('ram-bar').style.width = d.memory.ram_percent + '%';
-      document.getElementById('ram-pct').innerHTML = `<span>${d.memory.ram_percent}%</span> utilized`;
-
-      // Storage
-      document.getElementById('disk-used').innerText = d.storage.root_used_gb;
-      document.getElementById('disk-total').innerText = `/ ${d.storage.root_total_gb} GB`;
-      document.getElementById('disk-bar').style.width = d.storage.root_percent + '%';
-      document.getElementById('disk-pct').innerHTML = `<span>${d.storage.root_percent}%</span> utilized`;
-
-      // ZRAM
-      document.getElementById('zram-used').innerText = d.memory.zram_used_mb;
-      document.getElementById('zram-total').innerText = `/ ${d.memory.zram_total_mb} MB`;
-      document.getElementById('zram-bar').style.width = d.memory.zram_percent + '%';
-      document.getElementById('zram-pct').innerHTML = `<span>${d.memory.zram_percent}%</span> utilized`;
-
-      // IO deltas
-      const now = Date.now();
-      const dt = (now - prev.ts) / 1000;
-      if (prev.netRx > 0 && dt > 0) {
-        const rx = Math.max(0, ((d.network.bytes_recv - prev.netRx) / 1024 / dt)).toFixed(1);
-        const tx = Math.max(0, ((d.network.bytes_sent - prev.netTx) / 1024 / dt)).toFixed(1);
-        document.getElementById('net-rx').innerHTML = `${rx}<span class="io-unit">KB/s</span>`;
-        document.getElementById('net-tx').innerHTML = `${tx}<span class="io-unit">KB/s</span>`;
-        const dr = Math.max(0, ((d.storage.bytes_read - prev.diskR) / 1048576 / dt)).toFixed(2);
-        const dw = Math.max(0, ((d.storage.bytes_written - prev.diskW) / 1048576 / dt)).toFixed(2);
-        document.getElementById('disk-read').innerHTML = `${dr}<span class="io-unit">MB/s</span>`;
-        document.getElementById('disk-write').innerHTML = `${dw}<span class="io-unit">MB/s</span>`;
-      }
-      prev = { netRx: d.network.bytes_recv, netTx: d.network.bytes_sent, diskR: d.storage.bytes_read, diskW: d.storage.bytes_written, ts: now };
-
-      // Fuel gauge
-      const fg = d.iio.fuel_gauge;
-      document.getElementById('fg-i0').innerText = fg.current0_ma !== null ? fg.current0_ma + ' mA' : '—';
-      document.getElementById('fg-i1').innerText = fg.current1_ma !== null ? fg.current1_ma + ' mA' : '—';
-      document.getElementById('fg-v0').innerText = fg.voltage0_mv !== null ? fg.voltage0_mv + ' mV' : '—';
-      document.getElementById('fg-temp').innerText = d.iio.die_temp_celsius !== null ? d.iio.die_temp_celsius + ' °C' : '—';
-
-    } catch(e) {
-      if (online) {
-        document.getElementById('offline').style.display = 'block';
-        document.getElementById('status-dot').style.background = 'var(--red)';
-        document.getElementById('status-dot').style.boxShadow = '0 0 0 3px rgba(255,51,85,0.15), 0 0 20px var(--red)';
-        online = false;
-      }
-    }
-  }
-
-  setInterval(poll, 2000);
-  poll();
+// Page Visibility
+function start() { poll(); poller=setInterval(poll,5000); $('idle').style.display='none'; }
+function stop() { clearInterval(poller); poller=null; $('idle').style.display='flex'; }
+document.addEventListener('visibilitychange', () => document.hidden ? stop() : start());
+start();
 </script>
 </body>
 </html>
