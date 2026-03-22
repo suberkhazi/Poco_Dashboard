@@ -23,6 +23,37 @@ def read_sys_file(path):
         return None
     return None
 
+def read_iio_scaled(raw_path, scale_path, offset_path=None):
+    try:
+        raw = read_sys_file(raw_path)
+        scale = read_sys_file(scale_path)
+        if raw and scale:
+            val = float(raw) * float(scale)
+            if offset_path:
+                offset = read_sys_file(offset_path)
+                if offset:
+                    val += float(offset) * float(scale)
+            return round(val, 2)
+    except Exception:
+        return None
+    return None
+
+THERMAL_ZONES = {
+    "aoss0":    "/sys/class/thermal/thermal_zone0/temp",
+    "cpu0":     "/sys/class/thermal/thermal_zone1/temp",
+    "cpu7":     "/sys/class/thermal/thermal_zone2/temp",
+    "gpu_top":  "/sys/class/thermal/thermal_zone3/temp",
+    "gpu_bot":  "/sys/class/thermal/thermal_zone4/temp",
+    "aoss1":    "/sys/class/thermal/thermal_zone5/temp",
+    "modem":    "/sys/class/thermal/thermal_zone6/temp",
+    "mem":      "/sys/class/thermal/thermal_zone7/temp",
+    "wlan":     "/sys/class/thermal/thermal_zone8/temp",
+    "camera":   "/sys/class/thermal/thermal_zone10/temp",
+    "pm8998":   "/sys/class/thermal/thermal_zone14/temp",
+    "cluster0": "/sys/class/thermal/thermal_zone18/temp",
+    "cluster1": "/sys/class/thermal/thermal_zone19/temp",
+}
+
 boot_time = psutil.boot_time()
 
 @app.get("/stats")
@@ -30,33 +61,75 @@ def get_hardware_stats():
     cpu_percent_per_core = psutil.cpu_percent(interval=0.1, percpu=True)
     cpu_total = sum(cpu_percent_per_core) / len(cpu_percent_per_core) if cpu_percent_per_core else 0
     load_avg = os.getloadavg() if hasattr(os, 'getloadavg') else (0, 0, 0)
-    
+
     mem = psutil.virtual_memory()
-    swap = psutil.swap_memory() # This is the ZRAM on phone
+    swap = psutil.swap_memory()
     disk = psutil.disk_usage('/')
     disk_io = psutil.disk_io_counters()
     net = psutil.net_io_counters()
 
     # Battery
-    batt_level = read_sys_file('/sys/class/power_supply/battery/capacity') or "100"
-    batt_voltage = read_sys_file('/sys/class/power_supply/battery/voltage_now')
-    batt_voltage = str(round(int(batt_voltage) / 1000000, 2)) + "V" if batt_voltage else "N/A"
+    batt_level   = read_sys_file('/sys/class/power_supply/qcom-battery/capacity') or "N/A"
+    batt_status  = read_sys_file('/sys/class/power_supply/qcom-battery/status') or "N/A"
+    batt_tech    = read_sys_file('/sys/class/power_supply/qcom-battery/technology') or "N/A"
+    batt_present = read_sys_file('/sys/class/power_supply/qcom-battery/present') or "0"
+
+    batt_voltage_raw = read_sys_file('/sys/class/power_supply/qcom-battery/voltage_now')
+    batt_voltage = round(int(batt_voltage_raw) / 1000000, 3) if batt_voltage_raw else None
+
+    batt_current_raw = read_sys_file('/sys/class/power_supply/qcom-battery/current_now')
+    batt_current = round(int(batt_current_raw) / 1000, 1) if batt_current_raw else None
+
+    batt_temp_raw = read_sys_file('/sys/class/power_supply/qcom-battery/temp')
+    batt_temp = round(int(batt_temp_raw) / 10, 1) if batt_temp_raw else None
+
+    charge_full_raw = read_sys_file('/sys/class/power_supply/qcom-battery/charge_full_design')
+    charge_full = round(int(charge_full_raw) / 1000) if charge_full_raw else None
+
+    volt_max_raw = read_sys_file('/sys/class/power_supply/qcom-battery/voltage_max_design')
+    volt_max = round(int(volt_max_raw) / 1000000, 2) if volt_max_raw else None
+
+    # IIO device0 — die temperature sensor
+    iio0_die_temp_raw = read_sys_file('/sys/bus/iio/devices/iio:device0/in_temp_die_temp_input')
+    iio0_die_temp = round(int(iio0_die_temp_raw) / 1000, 1) if iio0_die_temp_raw else None
+
+    # IIO device1 — fuel gauge
+    iio1_current0 = read_iio_scaled(
+        '/sys/bus/iio/devices/iio:device1/in_current0_raw',
+        '/sys/bus/iio/devices/iio:device1/in_current0_scale'
+    )
+    iio1_current1 = read_iio_scaled(
+        '/sys/bus/iio/devices/iio:device1/in_current1_raw',
+        '/sys/bus/iio/devices/iio:device1/in_current1_scale'
+    )
+    iio1_voltage0 = read_iio_scaled(
+        '/sys/bus/iio/devices/iio:device1/in_voltage0_raw',
+        '/sys/bus/iio/devices/iio:device1/in_voltage0_scale'
+    )
+    iio1_temp0 = read_iio_scaled(
+        '/sys/bus/iio/devices/iio:device1/in_temp0_raw',
+        '/sys/bus/iio/devices/iio:device1/in_temp0_scale',
+    )
+    iio1_resistance = None
+    res_raw_path = '/sys/bus/iio/devices/iio:device1/in_resistance0_raw'
+    res_scale_path = '/sys/bus/iio/devices/iio:device1/in_resistance0_scale'
+    if os.path.exists(res_raw_path) and os.path.exists(res_scale_path):
+        iio1_resistance = read_iio_scaled(res_raw_path, res_scale_path)
 
     # Thermals
-    temp_raw = read_sys_file('/sys/class/thermal/thermal_zone0/temp')
-    cpu_temp = str(round(int(temp_raw) / 1000, 1)) if temp_raw else "40.0"
-
-    # Hardware IIO Sensors (Graceful fallback if paths vary)
-    lux = read_sys_file('/sys/bus/iio/devices/iio:device0/in_illuminance_raw') or "N/A"
+    thermals = {}
+    for name, path in THERMAL_ZONES.items():
+        val = read_sys_file(path)
+        thermals[name] = round(int(val) / 1000, 1) if val else None
 
     return {
         "system": {
-            "uptime_seconds": time.time() - boot_time,
-            "load_avg": [round(x, 2) for x in load_avg]
+            "uptime_seconds": round(time.time() - boot_time),
+            "load_avg": [round(x, 2) for x in load_avg],
         },
         "compute": {
             "total_percent": round(cpu_total),
-            "cores": cpu_percent_per_core
+            "cores": cpu_percent_per_core,
         },
         "memory": {
             "ram_used_gb": round(mem.used / (1024**3), 1),
@@ -64,27 +137,39 @@ def get_hardware_stats():
             "ram_percent": mem.percent,
             "zram_used_mb": round(swap.used / (1024**2)),
             "zram_total_mb": round(swap.total / (1024**2)),
-            "zram_percent": swap.percent
+            "zram_percent": swap.percent,
         },
         "storage": {
             "root_used_gb": round(disk.used / (1024**3), 1),
             "root_total_gb": round(disk.total / (1024**3), 1),
             "root_percent": disk.percent,
             "bytes_read": disk_io.read_bytes if disk_io else 0,
-            "bytes_written": disk_io.write_bytes if disk_io else 0
+            "bytes_written": disk_io.write_bytes if disk_io else 0,
         },
         "network": {
             "bytes_recv": net.bytes_recv,
-            "bytes_sent": net.bytes_sent
+            "bytes_sent": net.bytes_sent,
         },
         "power": {
-            "level": batt_level,
-            "voltage": batt_voltage
+            "level_percent": batt_level,
+            "status": batt_status,
+            "present": batt_present == "1",
+            "technology": batt_tech,
+            "voltage_v": batt_voltage,
+            "current_ma": batt_current,
+            "temp_celsius": batt_temp,
+            "design_capacity_mah": charge_full,
+            "max_voltage_v": volt_max,
         },
-        "thermals": {
-            "cpu_celsius": cpu_temp
-        },
-        "sensors": {
-            "lux": lux
+        "thermals": thermals,
+        "iio": {
+            "die_temp_celsius": iio0_die_temp,
+            "fuel_gauge": {
+                "current0_ma": iio1_current0,
+                "current1_ma": iio1_current1,
+                "voltage0_mv": iio1_voltage0,
+                "resistance_ohm": iio1_resistance,
+                "temp_celsius": iio1_temp0,
+            }
         }
     }
