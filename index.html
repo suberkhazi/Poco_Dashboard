@@ -1,411 +1,1142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Beryllium Core</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#eef0f4;
-  --card:#ffffff;
-  --card2:#f4f6f9;
-  --border:#dde1e8;
-  --text:#0d1117;
-  --sub:#4a5568;
-  --dim:#8a9ab0;
-  --blue:#1a56db;
-  --green:#057a55;
-  --orange:#c05621;
-  --red:#c81e1e;
-  --purple:#5521b5;
-  --teal:#0694a2;
-  --mono:'JetBrains Mono',monospace;
-  --sans:'Inter',system-ui,sans-serif;
-}
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beryllium Core</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #eef0f4;
+        --card: #ffffff;
+        --card2: #f4f6f9;
+        --border: #dde1e8;
+        --text: #0d1117;
+        --sub: #4a5568;
+        --dim: #8a9ab0;
+        --blue: #1a56db;
+        --green: #057a55;
+        --orange: #c05621;
+        --red: #c81e1e;
+        --purple: #5521b5;
+        --teal: #0694a2;
+        --mono: "JetBrains Mono", monospace;
+        --sans: "Inter", system-ui, sans-serif;
+      }
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        font-size: 15px;
+        line-height: 1.5;
+      }
 
-/* ── NAV ── */
-nav{
-  background:var(--card);
-  border-bottom:1px solid var(--border);
-  padding:0 20px;
-  height:54px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;
-  gap:12px;flex-wrap:wrap;
-}
-.nl{display:flex;align-items:center;gap:12px}
-.ndot{width:10px;height:10px;border-radius:50%;background:#057a55;box-shadow:0 0 0 3px rgba(5,122,85,.15);flex-shrink:0;transition:background .3s}
-.ndot.off{background:#c81e1e;box-shadow:0 0 0 3px rgba(200,30,30,.15)}
-.ntitle{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.03em}
-.ntitle b{color:var(--blue)}
-.nchip{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:500;color:var(--sub);font-family:var(--mono)}
-.nr{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.nstat{text-align:right}
-.nk{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.07em}
-.nv{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text)}
-.nsep{width:1px;height:22px;background:var(--border)}
-.nidle{display:none;background:#fff8f0;border:1px solid #f9c975;color:var(--orange);font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;font-family:var(--mono)}
+      /* ── NAV ── */
+      nav {
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+        padding: 0 20px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .nl {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .ndot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #057a55;
+        box-shadow: 0 0 0 3px rgba(5, 122, 85, 0.15);
+        flex-shrink: 0;
+        transition: background 0.3s;
+      }
+      .ndot.off {
+        background: #c81e1e;
+        box-shadow: 0 0 0 3px rgba(200, 30, 30, 0.15);
+      }
+      .ntitle {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.03em;
+      }
+      .ntitle b {
+        color: var(--blue);
+      }
+      .nchip {
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--sub);
+        font-family: var(--mono);
+      }
+      .nr {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+      }
+      .nstat {
+        text-align: right;
+      }
+      .nk {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .nv {
+        font-family: var(--mono);
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .nsep {
+        width: 1px;
+        height: 22px;
+        background: var(--border);
+      }
+      .nidle {
+        display: none;
+        background: #fff8f0;
+        border: 1px solid #f9c975;
+        color: var(--orange);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-family: var(--mono);
+      }
 
-/* ── PAGE ── */
-.page{padding:14px;display:flex;flex-direction:column;gap:12px}
+      /* ── PAGE ── */
+      .page {
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-/* ── CARD ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.cp{padding:16px 18px}
-.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.ct{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.06em;text-transform:uppercase}
+      /* ── CARD ── */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .cp {
+        padding: 16px 18px;
+      }
+      .ch {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .ct {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--sub);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
 
-/* ── BADGE ── */
-.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;font-family:var(--mono)}
-.bg{background:#def7ec;color:#03543f;border:1px solid #a7f3d0}
-.bb{background:#e1effe;color:#1e429f;border:1px solid #a4cafe}
-.bo{background:#feecdc;color:#7d3a00;border:1px solid #fdba8c}
-.br{background:#fde8e8;color:#9b1c1c;border:1px solid #f8b4b4}
-.bp{background:#edebfe;color:#4a1d96;border:1px solid#c4b5fd}
-.bt{background:#d5f5f6;color:#014451;border:1px solid#7edce2}
-.bd{background:var(--card2);color:var(--sub);border:1px solid var(--border)}
+      /* ── BADGE ── */
+      .badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-family: var(--mono);
+      }
+      .bg {
+        background: #def7ec;
+        color: #03543f;
+        border: 1px solid #a7f3d0;
+      }
+      .bb {
+        background: #e1effe;
+        color: #1e429f;
+        border: 1px solid #a4cafe;
+      }
+      .bo {
+        background: #feecdc;
+        color: #7d3a00;
+        border: 1px solid #fdba8c;
+      }
+      .br {
+        background: #fde8e8;
+        color: #9b1c1c;
+        border: 1px solid #f8b4b4;
+      }
+      .bp {
+        background: #edebfe;
+        color: #4a1d96;
+        border: 1px solid#c4b5fd;
+      }
+      .bt {
+        background: #d5f5f6;
+        color: #014451;
+        border: 1px solid#7edce2;
+      }
+      .bd {
+        background: var(--card2);
+        color: var(--sub);
+        border: 1px solid var(--border);
+      }
 
-/* ── GRID ── */
-.g{display:grid;gap:12px}
-.g12{grid-template-columns:repeat(12,1fr)}
-.s8{grid-column:span 8}
-.s4{grid-column:span 4}
-.g3{grid-template-columns:repeat(3,1fr)}
+      /* ── GRID ── */
+      .g {
+        display: grid;
+        gap: 12px;
+      }
+      .g12 {
+        grid-template-columns: repeat(12, 1fr);
+      }
+      .s8 {
+        grid-column: span 8;
+      }
+      .s4 {
+        grid-column: span 4;
+      }
+      .g3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
 
-/* ── BIG NUM ── */
-.big{font-family:var(--mono);font-size:56px;font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--text)}
-.bigsub{font-size:13px;color:var(--dim);margin-top:4px;font-family:var(--mono)}
+      /* ── BIG NUM ── */
+      .big {
+        font-family: var(--mono);
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        color: var(--text);
+      }
+      .bigsub {
+        font-size: 13px;
+        color: var(--dim);
+        margin-top: 4px;
+        font-family: var(--mono);
+      }
 
-/* ── IO BOX ── */
-.iorow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.iobox{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
-.iobox-k{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.iobox-v{font-family:var(--mono);font-size:16px;font-weight:700}
+      /* ── IO BOX ── */
+      .iorow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+      .iobox {
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .iobox-k {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+      }
+      .iobox-v {
+        font-family: var(--mono);
+        font-size: 16px;
+        font-weight: 700;
+      }
 
-/* ── CHART ── */
-.chartwrap{position:relative;height:90px}
+      /* ── CHART ── */
+      .chartwrap {
+        position: relative;
+        height: 90px;
+      }
 
-/* ── BAR ── */
-.bar{display:flex;flex-direction:column;gap:5px}
-.bartop{display:flex;justify-content:space-between;align-items:baseline}
-.barlabel{font-size:13px;font-weight:600;color:var(--sub)}
-.barval{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)}
-.bartrack{height:6px;background:var(--card2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
-.barfill{height:100%;border-radius:4px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+      /* ── BAR ── */
+      .bar {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .bartop {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .barlabel {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--sub);
+      }
+      .barval {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .bartrack {
+        height: 6px;
+        background: var(--card2);
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .barfill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-/* ── STAT ROW ── */
-.sr{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
-.sr:last-child{border-bottom:none}
-.sk{font-size:13px;color:var(--sub)}
-.sv{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text)}
+      /* ── STAT ROW ── */
+      .sr {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .sr:last-child {
+        border-bottom: none;
+      }
+      .sk {
+        font-size: 13px;
+        color: var(--sub);
+      }
+      .sv {
+        font-family: var(--mono);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+      }
 
-/* ── CORES ── */
-.cores{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
-.core{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center}
-.coreid{font-size:11px;font-weight:600;color:var(--dim);margin-bottom:5px}
-.corepct{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text);transition:color .3s}
-.coretrack{height:4px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:7px}
-.corefill{height:100%;border-radius:3px;background:var(--blue);transition:width .5s ease}
+      /* ── CORES ── */
+      .cores {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 8px;
+      }
+      .core {
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 6px;
+        text-align: center;
+      }
+      .coreid {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--dim);
+        margin-bottom: 5px;
+      }
+      .corepct {
+        font-family: var(--mono);
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        transition: color 0.3s;
+      }
+      .coretrack {
+        height: 4px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 7px;
+      }
+      .corefill {
+        height: 100%;
+        border-radius: 3px;
+        background: var(--blue);
+        transition: width 0.5s ease;
+      }
 
-/* ── THERMALS ── */
-.therm{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
-.therm:last-child{border-bottom:none}
-.thermname{font-size:11px;font-weight:700;color:var(--sub);width:48px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
-.thermtrack{flex:1;height:5px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
-.thermfill{height:100%;border-radius:3px;transition:width .6s ease,background .4s}
-.thermval{font-family:var(--mono);font-size:13px;font-weight:700;width:38px;text-align:right;flex-shrink:0}
+      /* ── THERMALS ── */
+      .therm {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .therm:last-child {
+        border-bottom: none;
+      }
+      .thermname {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--sub);
+        width: 48px;
+        flex-shrink: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .thermtrack {
+        flex: 1;
+        height: 5px;
+        background: var(--card2);
+        border-radius: 3px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .thermfill {
+        height: 100%;
+        border-radius: 3px;
+        transition:
+          width 0.6s ease,
+          background 0.4s;
+      }
+      .thermval {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 700;
+        width: 38px;
+        text-align: right;
+        flex-shrink: 0;
+      }
 
-/* ── PROCS ── */
-.phdr{display:grid;grid-template-columns:48px 1fr 60px 56px;gap:6px;padding:8px 18px;background:var(--card2);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.07em}
-.phr{text-align:right}
-.prow{display:grid;grid-template-columns:48px 1fr 60px 56px;gap:6px;padding:9px 18px;border-bottom:1px solid rgba(220,225,232,.5);align-items:center;transition:background .15s}
-.prow:hover{background:var(--card2)}
-.prow:last-child{border-bottom:none}
-.ppid{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:right}
-.pname{font-family:var(--mono);font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pcpu{font-family:var(--mono);font-size:13px;font-weight:700;text-align:right}
-.pmem{font-family:var(--mono);font-size:13px;color:var(--purple);text-align:right}
+      /* ── PROCS ── */
+      .phdr {
+        display: grid;
+        grid-template-columns: 48px 1fr 60px 56px;
+        gap: 6px;
+        padding: 8px 18px;
+        background: var(--card2);
+        border-bottom: 1px solid var(--border);
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      .phr {
+        text-align: right;
+      }
+      .prow {
+        display: grid;
+        grid-template-columns: 48px 1fr 60px 56px;
+        gap: 6px;
+        padding: 9px 18px;
+        border-bottom: 1px solid rgba(220, 225, 232, 0.5);
+        align-items: center;
+        transition: background 0.15s;
+      }
+      .prow:hover {
+        background: var(--card2);
+      }
+      .prow:last-child {
+        border-bottom: none;
+      }
+      .ppid {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--dim);
+        text-align: right;
+      }
+      .pname {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 500;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .pcpu {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 700;
+        text-align: right;
+      }
+      .pmem {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--purple);
+        text-align: right;
+      }
 
-/* ── IFACE ── */
-.iface{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-.ifacename{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;font-family:var(--mono)}
-.ifacegrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
-.ik{font-size:11px;color:var(--dim)}
-.iv{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text)}
+      /* ── IFACE ── */
+      .iface {
+        background: var(--card2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+      }
+      .ifacename {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--blue);
+        margin-bottom: 8px;
+        font-family: var(--mono);
+      }
+      .ifacegrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 12px;
+      }
+      .ik {
+        font-size: 11px;
+        color: var(--dim);
+      }
+      .iv {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+      }
 
-/* ── DIV ── */
-.div{height:1px;background:var(--border);margin:12px 0}
+      /* ── DIV ── */
+      .div {
+        height: 1px;
+        background: var(--border);
+        margin: 12px 0;
+      }
 
-/* ── OFFLINE ── */
-.offline{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--red);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-align:center;padding:6px;font-weight:700;text-transform:uppercase}
+      /* ── OFFLINE ── */
+      .offline {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        background: var(--red);
+        color: #fff;
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-align: center;
+        padding: 6px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
 
-/* ── RESPONSIVE ── */
-@media(max-width:1100px){
-  .s8,.s4{grid-column:span 12}
-  .g3{grid-template-columns:1fr 1fr}
-}
-@media(max-width:700px){
-  nav{height:auto;padding:10px 14px}
-  .nr{gap:12px}
-  .nchip{display:none}
-  .g3{grid-template-columns:1fr}
-  .cores{grid-template-columns:repeat(4,1fr)}
-  .iorow{grid-template-columns:repeat(2,1fr)}
-  .big{font-size:40px}
-  .page{padding:10px}
-  .cp{padding:14px}
-}
-@media(max-width:420px){
-  .cores{grid-template-columns:repeat(4,1fr)}
-  .nr .nsep,.nr .nstat:nth-child(n+5){display:none}
-}
-</style>
-</head>
-<body>
-<div class="offline" id="offline">Connection lost</div>
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1100px) {
+        .s8,
+        .s4 {
+          grid-column: span 12;
+        }
+        .g3 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 700px) {
+        nav {
+          height: auto;
+          padding: 10px 14px;
+        }
+        .nr {
+          gap: 12px;
+        }
+        .nchip {
+          display: none;
+        }
+        .g3 {
+          grid-template-columns: 1fr;
+        }
+        .cores {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .iorow {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .big {
+          font-size: 40px;
+        }
+        .page {
+          padding: 10px;
+        }
+        .cp {
+          padding: 14px;
+        }
+      }
+      @media (max-width: 420px) {
+        .cores {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        .nr .nsep,
+        .nr .nstat:nth-child(n + 5) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline" id="offline">Connection lost</div>
 
-<nav>
-  <div class="nl">
-    <div class="ndot" id="dot"></div>
-    <div class="ntitle">Beryllium <b>Core</b></div>
-    <div class="nchip">Poco F1 · SD845 · aarch64</div>
-  </div>
-  <div class="nr">
-    <div class="nidle" id="idle">⏸ Paused</div>
-    <div class="nstat"><div class="nk">Uptime</div><div class="nv" id="h-up">—</div></div>
-    <div class="nsep"></div>
-    <div class="nstat"><div class="nk">Load</div><div class="nv" id="h-load">—</div></div>
-    <div class="nsep"></div>
-    <div class="nstat"><div class="nk">Procs</div><div class="nv" id="h-procs">—</div></div>
-    <div class="nsep"></div>
-    <div class="nstat"><div class="nk">Updated</div><div class="nv" id="h-poll" style="color:var(--dim);font-size:12px">—</div></div>
-  </div>
-</nav>
-
-<div class="page">
-
-  <!-- ROW 1 -->
-  <div class="g g12">
-
-    <!-- CPU -->
-    <div class="card s8">
-      <div class="cp">
-        <div class="ch"><span class="ct">CPU Usage</span><span class="badge bb" id="cpu-badge">0%</span></div>
-        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:12px;flex-wrap:wrap">
-          <div>
-            <div class="big" id="cpu-big">0%</div>
-            <div class="bigsub" id="cpu-sub">load —</div>
-          </div>
-          <div class="iorow" style="flex:1;min-width:280px">
-            <div class="iobox"><div class="iobox-k">Net RX</div><div class="iobox-v" style="color:var(--blue)" id="h-rx">—</div></div>
-            <div class="iobox"><div class="iobox-k">Net TX</div><div class="iobox-v" style="color:var(--green)" id="h-tx">—</div></div>
-            <div class="iobox"><div class="iobox-k">Disk R</div><div class="iobox-v" style="color:var(--orange)" id="h-dr">—</div></div>
-            <div class="iobox"><div class="iobox-k">Disk W</div><div class="iobox-v" style="color:var(--red)" id="h-dw">—</div></div>
+    <nav>
+      <div class="nl">
+        <div class="ndot" id="dot"></div>
+        <div class="ntitle">Beryllium <b>Core</b></div>
+        <div class="nchip">Poco F1 · SD845 · aarch64</div>
+      </div>
+      <div class="nr">
+        <div class="nidle" id="idle">⏸ Paused</div>
+        <div class="nstat">
+          <div class="nk">Uptime</div>
+          <div class="nv" id="h-up">—</div>
+        </div>
+        <div class="nsep"></div>
+        <div class="nstat">
+          <div class="nk">Load</div>
+          <div class="nv" id="h-load">—</div>
+        </div>
+        <div class="nsep"></div>
+        <div class="nstat">
+          <div class="nk">Procs</div>
+          <div class="nv" id="h-procs">—</div>
+        </div>
+        <div class="nsep"></div>
+        <div class="nstat">
+          <div class="nk">Updated</div>
+          <div
+            class="nv"
+            id="h-poll"
+            style="color: var(--dim); font-size: 12px"
+          >
+            —
           </div>
         </div>
-        <div class="chartwrap"><canvas id="chart"></canvas></div>
-        <div class="div"></div>
-        <div class="cores" id="cores"></div>
       </div>
-    </div>
+    </nav>
 
-    <!-- Battery -->
-    <div class="card s4">
-      <div class="cp">
-        <div class="ch"><span class="ct">Battery · Power</span><span class="badge bg" id="batt-badge">—</span></div>
-        <div class="big" id="batt-big" style="color:var(--green)">—%</div>
-        <div class="bigsub" id="batt-sub">—</div>
-        <div style="margin:12px 0">
-          <div class="bartrack" style="height:8px"><div class="barfill" id="batt-bar" style="background:var(--green)"></div></div>
-        </div>
-        <div class="sr"><span class="sk">Voltage</span><span class="sv" style="color:var(--orange)" id="batt-v">—</span></div>
-        <div class="sr"><span class="sk">Current</span><span class="sv" style="color:var(--blue)" id="batt-i">—</span></div>
-        <div class="sr"><span class="sk">Temperature</span><span class="sv" style="color:var(--red)" id="batt-t">—</span></div>
-        <div class="sr"><span class="sk">Capacity</span><span class="sv" id="batt-cap">—</span></div>
-        <div class="sr"><span class="sk">Technology</span><span class="sv" id="batt-tech">—</span></div>
-        <div class="sr"><span class="sk">FG Current</span><span class="sv" style="color:var(--blue)" id="fg-i">—</span></div>
-        <div class="sr"><span class="sk">FG Voltage</span><span class="sv" style="color:var(--orange)" id="fg-v">—</span></div>
-        <div class="sr"><span class="sk">Die Temp</span><span class="sv" style="color:var(--red)" id="die-t">—</span></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ROW 2 -->
-  <div class="g g3">
-
-    <!-- Memory + Network -->
-    <div class="card">
-      <div class="cp">
-        <div class="ch"><span class="ct">Memory</span><span class="badge bp">LPDDR4X</span></div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="bar">
-            <div class="bartop"><span class="barlabel">RAM</span><span class="barval" id="ram-val">—</span></div>
-            <div class="bartrack"><div class="barfill" id="ram-bar" style="background:var(--purple)"></div></div>
+    <div class="page">
+      <!-- ROW 1 -->
+      <div class="g g12">
+        <!-- CPU -->
+        <div class="card s8">
+          <div class="cp">
+            <div class="ch">
+              <span class="ct">CPU Usage</span
+              ><span class="badge bb" id="cpu-badge">0%</span>
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: flex-end;
+                justify-content: space-between;
+                gap: 20px;
+                margin-bottom: 12px;
+                flex-wrap: wrap;
+              "
+            >
+              <div>
+                <div class="big" id="cpu-big">0%</div>
+                <div class="bigsub" id="cpu-sub">load —</div>
+              </div>
+              <div class="iorow" style="flex: 1; min-width: 280px">
+                <div class="iobox">
+                  <div class="iobox-k">Net RX</div>
+                  <div class="iobox-v" style="color: var(--blue)" id="h-rx">
+                    —
+                  </div>
+                </div>
+                <div class="iobox">
+                  <div class="iobox-k">Net TX</div>
+                  <div class="iobox-v" style="color: var(--green)" id="h-tx">
+                    —
+                  </div>
+                </div>
+                <div class="iobox">
+                  <div class="iobox-k">Disk R</div>
+                  <div class="iobox-v" style="color: var(--orange)" id="h-dr">
+                    —
+                  </div>
+                </div>
+                <div class="iobox">
+                  <div class="iobox-k">Disk W</div>
+                  <div class="iobox-v" style="color: var(--red)" id="h-dw">
+                    —
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="chartwrap"><canvas id="chart"></canvas></div>
+            <div class="div"></div>
+            <div class="cores" id="cores"></div>
           </div>
-          <div class="bar">
-            <div class="bartop"><span class="barlabel">ZRAM Swap</span><span class="barval" id="zram-val">—</span></div>
-            <div class="bartrack"><div class="barfill" id="zram-bar" style="background:var(--orange)"></div></div>
-          </div>
-          <div class="bar">
-            <div class="bartop"><span class="barlabel">Storage</span><span class="barval" id="disk-val">—</span></div>
-            <div class="bartrack"><div class="barfill" id="disk-bar" style="background:var(--teal)"></div></div>
+        </div>
+
+        <!-- Battery -->
+        <div class="card s4">
+          <div class="cp">
+            <div class="ch">
+              <span class="ct">Battery · Power</span
+              ><span class="badge bg" id="batt-badge">—</span>
+            </div>
+            <div class="big" id="batt-big" style="color: var(--green)">—%</div>
+            <div class="bigsub" id="batt-sub">—</div>
+            <div style="margin: 12px 0">
+              <div class="bartrack" style="height: 8px">
+                <div
+                  class="barfill"
+                  id="batt-bar"
+                  style="background: var(--green)"
+                ></div>
+              </div>
+            </div>
+            <div class="sr">
+              <span class="sk">Voltage</span
+              ><span class="sv" style="color: var(--orange)" id="batt-v"
+                >—</span
+              >
+            </div>
+            <div class="sr">
+              <span class="sk">Current</span
+              ><span class="sv" style="color: var(--blue)" id="batt-i">—</span>
+            </div>
+            <div class="sr">
+              <span class="sk">Temperature</span
+              ><span class="sv" style="color: var(--red)" id="batt-t">—</span>
+            </div>
+            <div class="sr">
+              <span class="sk">Capacity</span
+              ><span class="sv" id="batt-cap">—</span>
+            </div>
+            <div class="sr">
+              <span class="sk">Technology</span
+              ><span class="sv" id="batt-tech">—</span>
+            </div>
+            <div class="sr">
+              <span class="sk">FG Current</span
+              ><span class="sv" style="color: var(--blue)" id="fg-i">—</span>
+            </div>
+            <div class="sr">
+              <span class="sk">FG Voltage</span
+              ><span class="sv" style="color: var(--orange)" id="fg-v">—</span>
+            </div>
+            <div class="sr">
+              <span class="sk">Die Temp</span
+              ><span class="sv" style="color: var(--red)" id="die-t">—</span>
+            </div>
           </div>
         </div>
-        <div class="div"></div>
-        <div class="ch" style="margin-bottom:10px"><span class="ct">Network</span><span class="badge bb">Live</span></div>
-        <div id="net-list" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
-    </div>
 
-    <!-- Thermals -->
-    <div class="card">
-      <div class="cp">
-        <div class="ch"><span class="ct">SoC Thermals</span><span class="badge bo">13 zones</span></div>
-        <div id="therm-list"></div>
-      </div>
-    </div>
+      <!-- ROW 2 -->
+      <div class="g g3">
+        <!-- Memory + Network -->
+        <div class="card">
+          <div class="cp">
+            <div class="ch">
+              <span class="ct">Memory</span
+              ><span class="badge bp">LPDDR4X</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px">
+              <div class="bar">
+                <div class="bartop">
+                  <span class="barlabel">RAM</span
+                  ><span class="barval" id="ram-val">—</span>
+                </div>
+                <div class="bartrack">
+                  <div
+                    class="barfill"
+                    id="ram-bar"
+                    style="background: var(--purple)"
+                  ></div>
+                </div>
+              </div>
+              <div class="bar">
+                <div class="bartop">
+                  <span class="barlabel">ZRAM Swap</span
+                  ><span class="barval" id="zram-val">—</span>
+                </div>
+                <div class="bartrack">
+                  <div
+                    class="barfill"
+                    id="zram-bar"
+                    style="background: var(--orange)"
+                  ></div>
+                </div>
+              </div>
+              <div class="bar">
+                <div class="bartop">
+                  <span class="barlabel">Storage</span
+                  ><span class="barval" id="disk-val">—</span>
+                </div>
+                <div class="bartrack">
+                  <div
+                    class="barfill"
+                    id="disk-bar"
+                    style="background: var(--teal)"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div class="div"></div>
+            <div class="ch" style="margin-bottom: 10px">
+              <span class="ct">Network</span><span class="badge bb">Live</span>
+            </div>
+            <div
+              id="net-list"
+              style="display: flex; flex-direction: column; gap: 10px"
+            ></div>
+          </div>
+        </div>
 
-    <!-- Processes -->
-    <div class="card" style="overflow:hidden;display:flex;flex-direction:column">
-      <div class="cp" style="padding-bottom:10px">
-        <div class="ch" style="margin-bottom:0">
-          <span class="ct">Top Processes</span>
-          <span class="badge bd" id="proc-badge">—</span>
+        <!-- Thermals -->
+        <div class="card">
+          <div class="cp">
+            <div class="ch">
+              <span class="ct">SoC Thermals</span
+              ><span class="badge bo">13 zones</span>
+            </div>
+            <div id="therm-list"></div>
+          </div>
+        </div>
+
+        <!-- Processes -->
+        <div
+          class="card"
+          style="overflow: hidden; display: flex; flex-direction: column"
+        >
+          <div class="cp" style="padding-bottom: 10px">
+            <div class="ch" style="margin-bottom: 0">
+              <span class="ct">Top Processes</span>
+              <span class="badge bd" id="proc-badge">—</span>
+            </div>
+          </div>
+          <div class="phdr">
+            <div class="phr">PID</div>
+            <div>Name</div>
+            <div class="phr">CPU</div>
+            <div class="phr">Mem</div>
+          </div>
+          <div id="proc-list"></div>
         </div>
       </div>
-      <div class="phdr">
-        <div class="phr">PID</div><div>Name</div><div class="phr">CPU</div><div class="phr">Mem</div>
-      </div>
-      <div id="proc-list"></div>
     </div>
 
-  </div>
-</div>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const set = (id, v) => {
+        const e = $(id);
+        if (e) e.innerText = v;
+      };
 
-<script>
-const $=id=>document.getElementById(id);
-const set=(id,v)=>{const e=$(id);if(e)e.innerText=v};
+      // Cores
+      const ce = $("cores");
+      for (let i = 0; i < 8; i++)
+        ce.innerHTML += `<div class="core"><div class="coreid">C${i}</div><div class="corepct" id="c${i}">0%</div><div class="coretrack"><div class="corefill" id="cb${i}"></div></div></div>`;
 
-// Cores
-const ce=$('cores');
-for(let i=0;i<8;i++) ce.innerHTML+=`<div class="core"><div class="coreid">C${i}</div><div class="corepct" id="c${i}">0%</div><div class="coretrack"><div class="corefill" id="cb${i}"></div></div></div>`;
+      // Thermals
+      const TZ = {
+        cpu0: "CPU0",
+        cpu7: "CPU7",
+        gpu_top: "GPU+",
+        gpu_bot: "GPU−",
+        cluster0: "CLS0",
+        cluster1: "CLS1",
+        aoss0: "AOSS0",
+        aoss1: "AOSS1",
+        modem: "MODEM",
+        wlan: "WLAN",
+        mem: "MEM",
+        camera: "CAM",
+        pm8998: "PMIC",
+      };
+      const tl = $("therm-list");
+      Object.keys(TZ).forEach((k) => {
+        tl.innerHTML += `<div class="therm"><div class="thermname">${TZ[k]}</div><div class="thermtrack"><div class="thermfill" id="tf-${k}"></div></div><div class="thermval" id="tv-${k}">—</div></div>`;
+      });
 
-// Thermals
-const TZ={cpu0:'CPU0',cpu7:'CPU7',gpu_top:'GPU+',gpu_bot:'GPU−',cluster0:'CLS0',cluster1:'CLS1',aoss0:'AOSS0',aoss1:'AOSS1',modem:'MODEM',wlan:'WLAN',mem:'MEM',camera:'CAM',pm8998:'PMIC'};
-const tl=$('therm-list');
-Object.keys(TZ).forEach(k=>{tl.innerHTML+=`<div class="therm"><div class="thermname">${TZ[k]}</div><div class="thermtrack"><div class="thermfill" id="tf-${k}"></div></div><div class="thermval" id="tv-${k}">—</div></div>`});
+      // Chart
+      const chart = new Chart($("chart").getContext("2d"), {
+        type: "line",
+        data: {
+          labels: Array(60).fill(""),
+          datasets: [
+            {
+              data: Array(60).fill(0),
+              borderColor: "#1a56db",
+              backgroundColor: "rgba(26,86,219,0.07)",
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 100,
+              border: { display: false },
+              grid: { color: "rgba(0,0,0,.05)" },
+              ticks: {
+                color: "#8a9ab0",
+                font: { family: "JetBrains Mono", size: 10 },
+                stepSize: 50,
+                callback: (v) => v + "%",
+              },
+            },
+            x: { display: false },
+          },
+          plugins: { legend: { display: false } },
+          animation: { duration: 0 },
+        },
+      });
 
-// Chart
-const chart=new Chart($('chart').getContext('2d'),{
-  type:'line',
-  data:{labels:Array(60).fill(''),datasets:[{data:Array(60).fill(0),borderColor:'#1a56db',backgroundColor:'rgba(26,86,219,0.07)',borderWidth:2,fill:true,tension:0.4,pointRadius:0}]},
-  options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:100,border:{display:false},grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#8a9ab0',font:{family:'JetBrains Mono',size:10},stepSize:50,callback:v=>v+'%'}},x:{display:false}},plugins:{legend:{display:false}},animation:{duration:0}}
-});
+      const uptime = (s) => {
+        const d = Math.floor(s / 86400),
+          h = Math.floor((s % 86400) / 3600),
+          m = Math.floor((s % 3600) / 60);
+        return `${d}d ${h}h ${m}m`;
+      };
+      const tc = (c) =>
+        c == null
+          ? "var(--dim)"
+          : c > 85
+            ? "#c81e1e"
+            : c > 70
+              ? "#c05621"
+              : c > 55
+                ? "#b45309"
+                : "#057a55";
+      const cc = (p) =>
+        p > 85
+          ? "#c81e1e"
+          : p > 60
+            ? "#c05621"
+            : p > 30
+              ? "#1a56db"
+              : "var(--text)";
+      const fmtS = (b) =>
+        b > 1e6
+          ? (b / 1e6).toFixed(2) + " MB/s"
+          : b > 1e3
+            ? (b / 1e3).toFixed(1) + " KB/s"
+            : b.toFixed(0) + " B/s";
+      const fmtB = (b) =>
+        b > 1e9
+          ? (b / 1e9).toFixed(2) + " GB"
+          : b > 1e6
+            ? (b / 1e6).toFixed(1) + " MB"
+            : (b / 1e3).toFixed(0) + " KB";
 
-const uptime=s=>{const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return`${d}d ${h}h ${m}m`};
-const tc=c=>c==null?'var(--dim)':c>85?'#c81e1e':c>70?'#c05621':c>55?'#b45309':'#057a55';
-const cc=p=>p>85?'#c81e1e':p>60?'#c05621':p>30?'#1a56db':'var(--text)';
-const fmtS=b=>b>1e6?(b/1e6).toFixed(2)+' MB/s':b>1e3?(b/1e3).toFixed(1)+' KB/s':b.toFixed(0)+' B/s';
-const fmtB=b=>b>1e9?(b/1e9).toFixed(2)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':(b/1e3).toFixed(0)+' KB';
+      let prev = { rx: {}, tx: {}, diskR: 0, diskW: 0, ts: Date.now() };
+      let online = true,
+        poller = null;
 
-let prev={rx:{},tx:{},diskR:0,diskW:0,ts:Date.now()};
-let online=true,poller=null;
+      async function poll() {
+        try {
+          const d = await (
+            await fetch("https://poco-f1-pmos.tailbbba48.ts.net:10000/stats")
+          ).json();
+          if (!online) {
+            $("offline").style.display = "none";
+            online = true;
+          }
+          $("dot").className = "ndot";
+          set("h-poll", new Date().toLocaleTimeString());
+          set("h-up", uptime(d.system.uptime_seconds));
+          set("h-load", d.system.load_avg.join(" · "));
+          set("h-procs", d.system.proc_count);
+          set("proc-badge", d.system.proc_count + " running");
 
-async function poll(){
-  try{
-    const d=await(await fetch('https://poco-f1-pmos.tailbbba48.ts.net/stats')).json();
-    if(!online){$('offline').style.display='none';online=true}
-    $('dot').className='ndot';
-    set('h-poll',new Date().toLocaleTimeString());
-    set('h-up',uptime(d.system.uptime_seconds));
-    set('h-load',d.system.load_avg.join(' · '));
-    set('h-procs',d.system.proc_count);
-    set('proc-badge',d.system.proc_count+' running');
+          const pct = d.compute.total_percent;
+          set("cpu-big", pct + "%");
+          set("cpu-badge", pct + "%");
+          set("cpu-sub", "load  " + d.system.load_avg.join("   "));
+          chart.data.datasets[0].data.shift();
+          chart.data.datasets[0].data.push(pct);
+          chart.update();
+          d.compute.cores.forEach((v, i) => {
+            const p = Math.round(v);
+            set("c" + i, p + "%");
+            $("c" + i).style.color = cc(p);
+            $("cb" + i).style.width = p + "%";
+            $("cb" + i).style.background =
+              p > 85 ? "#c81e1e" : p > 60 ? "#c05621" : "#1a56db";
+          });
 
-    const pct=d.compute.total_percent;
-    set('cpu-big',pct+'%');set('cpu-badge',pct+'%');
-    set('cpu-sub','load  '+d.system.load_avg.join('   '));
-    chart.data.datasets[0].data.shift();
-    chart.data.datasets[0].data.push(pct);
-    chart.update();
-    d.compute.cores.forEach((v,i)=>{
-      const p=Math.round(v);
-      set('c'+i,p+'%');
-      $('c'+i).style.color=cc(p);
-      $('cb'+i).style.width=p+'%';
-      $('cb'+i).style.background=p>85?'#c81e1e':p>60?'#c05621':'#1a56db';
-    });
+          const bl = parseInt(d.power.level_percent) || 0;
+          const bs = d.power.status || "—";
+          const bHex = bl < 20 ? "#c81e1e" : bl < 40 ? "#c05621" : "#057a55";
+          set("batt-big", bl + "%");
+          $("batt-big").style.color = bHex;
+          set(
+            "batt-sub",
+            bs +
+              (d.power.max_voltage_v
+                ? " · max " + d.power.max_voltage_v + "V"
+                : ""),
+          );
+          $("batt-bar").style.width = bl + "%";
+          $("batt-bar").style.background = bHex;
+          const bb = $("batt-badge");
+          bb.innerText = bs;
+          bb.className =
+            "badge " + (bs === "Charging" ? "bg" : bs === "Full" ? "bb" : "bo");
+          set(
+            "batt-v",
+            d.power.voltage_v != null ? d.power.voltage_v + " V" : "—",
+          );
+          set(
+            "batt-i",
+            d.power.current_ma != null
+              ? (d.power.current_ma > 0 ? "+" : "") + d.power.current_ma + " mA"
+              : "—",
+          );
+          set(
+            "batt-t",
+            d.power.temp_celsius != null ? d.power.temp_celsius + " °C" : "—",
+          );
+          set(
+            "batt-cap",
+            d.power.design_capacity_mah != null
+              ? d.power.design_capacity_mah + " mAh"
+              : "—",
+          );
+          set("batt-tech", d.power.technology || "—");
+          set(
+            "fg-i",
+            d.iio.fuel_gauge.current0_ma != null
+              ? d.iio.fuel_gauge.current0_ma + " mA"
+              : "—",
+          );
+          set(
+            "fg-v",
+            d.iio.fuel_gauge.voltage0_mv != null
+              ? d.iio.fuel_gauge.voltage0_mv + " mV"
+              : "—",
+          );
+          set(
+            "die-t",
+            d.iio.die_temp_celsius != null
+              ? d.iio.die_temp_celsius + " °C"
+              : "—",
+          );
 
-    const bl=parseInt(d.power.level_percent)||0;
-    const bs=d.power.status||'—';
-    const bHex=bl<20?'#c81e1e':bl<40?'#c05621':'#057a55';
-    set('batt-big',bl+'%');$('batt-big').style.color=bHex;
-    set('batt-sub',bs+(d.power.max_voltage_v?' · max '+d.power.max_voltage_v+'V':''));
-    $('batt-bar').style.width=bl+'%';$('batt-bar').style.background=bHex;
-    const bb=$('batt-badge');
-    bb.innerText=bs;bb.className='badge '+(bs==='Charging'?'bg':bs==='Full'?'bb':'bo');
-    set('batt-v',d.power.voltage_v!=null?d.power.voltage_v+' V':'—');
-    set('batt-i',d.power.current_ma!=null?(d.power.current_ma>0?'+':'')+d.power.current_ma+' mA':'—');
-    set('batt-t',d.power.temp_celsius!=null?d.power.temp_celsius+' °C':'—');
-    set('batt-cap',d.power.design_capacity_mah!=null?d.power.design_capacity_mah+' mAh':'—');
-    set('batt-tech',d.power.technology||'—');
-    set('fg-i',d.iio.fuel_gauge.current0_ma!=null?d.iio.fuel_gauge.current0_ma+' mA':'—');
-    set('fg-v',d.iio.fuel_gauge.voltage0_mv!=null?d.iio.fuel_gauge.voltage0_mv+' mV':'—');
-    set('die-t',d.iio.die_temp_celsius!=null?d.iio.die_temp_celsius+' °C':'—');
+          set("ram-val", `${d.memory.ram_used_gb}/${d.memory.ram_total_gb} GB`);
+          $("ram-bar").style.width = d.memory.ram_percent + "%";
+          set(
+            "zram-val",
+            `${d.memory.zram_used_mb}/${d.memory.zram_total_mb} MB`,
+          );
+          $("zram-bar").style.width = d.memory.zram_percent + "%";
+          set(
+            "disk-val",
+            `${d.storage.root_used_gb}/${d.storage.root_total_gb} GB`,
+          );
+          $("disk-bar").style.width = d.storage.root_percent + "%";
 
-    set('ram-val',`${d.memory.ram_used_gb}/${d.memory.ram_total_gb} GB`);
-    $('ram-bar').style.width=d.memory.ram_percent+'%';
-    set('zram-val',`${d.memory.zram_used_mb}/${d.memory.zram_total_mb} MB`);
-    $('zram-bar').style.width=d.memory.zram_percent+'%';
-    set('disk-val',`${d.storage.root_used_gb}/${d.storage.root_total_gb} GB`);
-    $('disk-bar').style.width=d.storage.root_percent+'%';
+          Object.keys(TZ).forEach((k) => {
+            const v = d.thermals[k];
+            set("tv-" + k, v != null ? v + "°" : "—");
+            $("tv-" + k).style.color = tc(v);
+            $("tf-" + k).style.width = (v ? Math.min(100, v) : 0) + "%";
+            $("tf-" + k).style.background = tc(v);
+          });
 
-    Object.keys(TZ).forEach(k=>{
-      const v=d.thermals[k];
-      set('tv-'+k,v!=null?v+'°':'—');
-      $('tv-'+k).style.color=tc(v);
-      $('tf-'+k).style.width=(v?Math.min(100,v):0)+'%';
-      $('tf-'+k).style.background=tc(v);
-    });
+          const now = Date.now(),
+            dt = (now - prev.ts) / 1000;
+          const ifaces = d.network.interfaces || {};
+          let tRx = 0,
+            tTx = 0;
+          const nl = $("net-list");
+          nl.innerHTML = "";
+          Object.entries(ifaces).forEach(([name, st]) => {
+            const rxS =
+              dt > 0 && prev.rx[name]
+                ? Math.max(0, (st.bytes_recv - prev.rx[name]) / dt)
+                : 0;
+            const txS =
+              dt > 0 && prev.tx[name]
+                ? Math.max(0, (st.bytes_sent - prev.tx[name]) / dt)
+                : 0;
+            tRx += rxS;
+            tTx += txS;
+            nl.innerHTML += `<div class="iface"><div class="ifacename">${name}</div><div class="ifacegrid"><div class="ik">↓ RX</div><div class="iv" style="color:var(--blue)">${fmtS(rxS)}</div><div class="ik">↑ TX</div><div class="iv" style="color:var(--green)">${fmtS(txS)}</div><div class="ik">Total RX</div><div class="iv">${fmtB(st.bytes_recv)}</div><div class="ik">Total TX</div><div class="iv">${fmtB(st.bytes_sent)}</div></div></div>`;
+          });
+          set("h-rx", fmtS(tRx));
+          set("h-tx", fmtS(tTx));
+          const dR =
+            dt > 0 && prev.diskR > 0
+              ? Math.max(0, (d.storage.bytes_read - prev.diskR) / dt)
+              : 0;
+          const dW =
+            dt > 0 && prev.diskW > 0
+              ? Math.max(0, (d.storage.bytes_written - prev.diskW) / dt)
+              : 0;
+          set("h-dr", fmtS(dR));
+          set("h-dw", fmtS(dW));
+          const nRx = {},
+            nTx = {};
+          Object.entries(ifaces).forEach(([n, st]) => {
+            nRx[n] = st.bytes_recv;
+            nTx[n] = st.bytes_sent;
+          });
+          prev = {
+            rx: nRx,
+            tx: nTx,
+            diskR: d.storage.bytes_read,
+            diskW: d.storage.bytes_written,
+            ts: now,
+          };
 
-    const now=Date.now(),dt=(now-prev.ts)/1000;
-    const ifaces=d.network.interfaces||{};
-    let tRx=0,tTx=0;
-    const nl=$('net-list');nl.innerHTML='';
-    Object.entries(ifaces).forEach(([name,st])=>{
-      const rxS=dt>0&&prev.rx[name]?Math.max(0,(st.bytes_recv-prev.rx[name])/dt):0;
-      const txS=dt>0&&prev.tx[name]?Math.max(0,(st.bytes_sent-prev.tx[name])/dt):0;
-      tRx+=rxS;tTx+=txS;
-      nl.innerHTML+=`<div class="iface"><div class="ifacename">${name}</div><div class="ifacegrid"><div class="ik">↓ RX</div><div class="iv" style="color:var(--blue)">${fmtS(rxS)}</div><div class="ik">↑ TX</div><div class="iv" style="color:var(--green)">${fmtS(txS)}</div><div class="ik">Total RX</div><div class="iv">${fmtB(st.bytes_recv)}</div><div class="ik">Total TX</div><div class="iv">${fmtB(st.bytes_sent)}</div></div></div>`;
-    });
-    set('h-rx',fmtS(tRx));set('h-tx',fmtS(tTx));
-    const dR=dt>0&&prev.diskR>0?Math.max(0,(d.storage.bytes_read-prev.diskR)/dt):0;
-    const dW=dt>0&&prev.diskW>0?Math.max(0,(d.storage.bytes_written-prev.diskW)/dt):0;
-    set('h-dr',fmtS(dR));set('h-dw',fmtS(dW));
-    const nRx={},nTx={};
-    Object.entries(ifaces).forEach(([n,st])=>{nRx[n]=st.bytes_recv;nTx[n]=st.bytes_sent});
-    prev={rx:nRx,tx:nTx,diskR:d.storage.bytes_read,diskW:d.storage.bytes_written,ts:now};
+          const pl = $("proc-list");
+          pl.innerHTML = "";
+          (d.system.top_procs || []).forEach((p) => {
+            const c =
+              p.cpu > 50
+                ? "#c81e1e"
+                : p.cpu > 20
+                  ? "#c05621"
+                  : p.cpu > 5
+                    ? "#1a56db"
+                    : "#057a55";
+            pl.innerHTML += `<div class="prow"><div class="ppid">${p.pid}</div><div class="pname">${p.name}</div><div class="pcpu" style="color:${c}">${p.cpu}%</div><div class="pmem">${p.mem}%</div></div>`;
+          });
+        } catch (e) {
+          if (online) {
+            $("offline").style.display = "block";
+            $("dot").className = "ndot off";
+            online = false;
+          }
+        }
+      }
 
-    const pl=$('proc-list');pl.innerHTML='';
-    (d.system.top_procs||[]).forEach(p=>{
-      const c=p.cpu>50?'#c81e1e':p.cpu>20?'#c05621':p.cpu>5?'#1a56db':'#057a55';
-      pl.innerHTML+=`<div class="prow"><div class="ppid">${p.pid}</div><div class="pname">${p.name}</div><div class="pcpu" style="color:${c}">${p.cpu}%</div><div class="pmem">${p.mem}%</div></div>`;
-    });
-
-  }catch(e){
-    if(online){$('offline').style.display='block';$('dot').className='ndot off';online=false}
-  }
-}
-
-function start(){poll();poller=setInterval(poll,5000);$('idle').style.display='none'}
-function stop(){clearInterval(poller);poller=null;$('idle').style.display='block'}
-document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
-start();
-</script>
-</body>
+      function start() {
+        poll();
+        poller = setInterval(poll, 5000);
+        $("idle").style.display = "none";
+      }
+      function stop() {
+        clearInterval(poller);
+        poller = null;
+        $("idle").style.display = "block";
+      }
+      document.addEventListener("visibilitychange", () =>
+        document.hidden ? stop() : start(),
+      );
+      start();
+    </script>
+  </body>
 </html>
