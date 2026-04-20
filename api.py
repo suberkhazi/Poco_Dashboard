@@ -8,7 +8,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*", "https://poco-f1-pmos.tailbbba48.ts.net:10000/stats"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
