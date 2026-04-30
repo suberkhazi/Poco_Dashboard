@@ -56,7 +56,7 @@ boot_time = psutil.boot_time()
 psutil.cpu_percent(interval=None, percpu=True)
 
 @app.get("/stats")
-async def get_hardware_stats():
+def get_hardware_stats():
     cpu_percent_per_core = psutil.cpu_percent(interval=None, percpu=True)
     cpu_total = round(sum(cpu_percent_per_core) / len(cpu_percent_per_core), 1) if cpu_percent_per_core else 0
     load_avg = os.getloadavg() if hasattr(os, 'getloadavg') else (0, 0, 0)
