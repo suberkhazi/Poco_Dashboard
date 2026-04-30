@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import psutil
 import os
 import time
+from threading import Lock
 
 app = FastAPI()
 
@@ -54,7 +55,8 @@ SKIP_IFACES = {'lo', 'rmnet_ipa0', 'usb0'}
 boot_time = psutil.boot_time()
 # Prime cpu_percent so first call returns real values
 psutil.cpu_percent(interval=None, percpu=True)
-_PROC_CPU_SAMPLE = {}
+_PROC_CPU_CACHE = {}
+_PROC_CPU_LOCK = Lock()
 
 @app.get("/stats")
 async def get_hardware_stats():
@@ -87,9 +89,11 @@ async def get_hardware_stats():
     proc_count = 0
     top_procs = []
     try:
-        global _PROC_CPU_SAMPLE
+        global _PROC_CPU_CACHE
         procs = []
         now = time.monotonic()
+        with _PROC_CPU_LOCK:
+            prev_samples = dict(_PROC_CPU_CACHE)
         next_proc_cpu_sample = {}
         for pid in psutil.pids():
             try:
@@ -99,7 +103,7 @@ async def get_hardware_stats():
                     mem = round(p.memory_percent() or 0, 1)
                     cpu_times = p.cpu_times()
                 total_cpu = cpu_times.user + cpu_times.system
-                prev = _PROC_CPU_SAMPLE.get(pid)
+                prev = prev_samples.get(pid)
                 if prev:
                     prev_total, prev_time = prev
                     delta_time = now - prev_time
@@ -116,7 +120,8 @@ async def get_hardware_stats():
                 })
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
-        _PROC_CPU_SAMPLE = next_proc_cpu_sample
+        with _PROC_CPU_LOCK:
+            _PROC_CPU_CACHE = next_proc_cpu_sample
         proc_count = len(procs)
         top_procs = sorted(procs, key=lambda x: x['cpu'], reverse=True)[:8]
     except Exception:
