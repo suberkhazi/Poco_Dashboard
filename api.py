@@ -54,6 +54,7 @@ SKIP_IFACES = {'lo', 'rmnet_ipa0', 'usb0'}
 boot_time = psutil.boot_time()
 # Prime cpu_percent so first call returns real values
 psutil.cpu_percent(interval=None, percpu=True)
+_PROC_CPU_SAMPLE = {}
 
 @app.get("/stats")
 async def get_hardware_stats():
@@ -86,18 +87,36 @@ async def get_hardware_stats():
     proc_count = 0
     top_procs = []
     try:
+        global _PROC_CPU_SAMPLE
         procs = []
-        for p in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent', 'status']):
+        now = time.monotonic()
+        next_proc_cpu_sample = {}
+        for pid in psutil.pids():
             try:
-                info = p.info
+                p = psutil.Process(pid)
+                with p.oneshot():
+                    name = p.name() or ''
+                    mem = round(p.memory_percent() or 0, 1)
+                    cpu_times = p.cpu_times()
+                total_cpu = cpu_times.user + cpu_times.system
+                prev = _PROC_CPU_SAMPLE.get(pid)
+                if prev:
+                    prev_total, prev_time = prev
+                    delta_time = now - prev_time
+                    delta_cpu = max(0.0, total_cpu - prev_total)
+                    cpu = round((delta_cpu / delta_time) * 100, 1) if delta_time > 0 else 0.0
+                else:
+                    cpu = 0.0
+                next_proc_cpu_sample[pid] = (total_cpu, now)
                 procs.append({
-                    "pid": info['pid'],
-                    "name": (info['name'] or '')[:18],
-                    "cpu": round(info['cpu_percent'] or 0, 1),
-                    "mem": round(info['memory_percent'] or 0, 1),
+                    "pid": pid,
+                    "name": name[:18],
+                    "cpu": cpu,
+                    "mem": mem,
                 })
-            except Exception:
-                pass
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+        _PROC_CPU_SAMPLE = next_proc_cpu_sample
         proc_count = len(procs)
         top_procs = sorted(procs, key=lambda x: x['cpu'], reverse=True)[:8]
     except Exception:
